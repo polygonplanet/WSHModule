@@ -10,9 +10,14 @@ global.WSHModule = { _fixed64bitSymbol: '{fixed64bit}' };
 WSHModule._resolve_64bit_ScriptControl = function() {
   var argc = WSHModule._argc = WScript.Arguments.Count();
   var symbol = WSHModule._fixed64bitSymbol;
+
+  if (argc !== 1) {
+    return;
+  }
+
   var arg = WScript.Arguments.Item(argc - 1);
 
-  if (argc !== 1 || arg === symbol) {
+  if (arg === symbol) {
     return;
   }
 
