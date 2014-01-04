@@ -1,0 +1,33 @@
+object ClipConsoleForm: TClipConsoleForm
+  Left = 221
+  Top = 108
+  Width = 528
+  Height = 457
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Consolas'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 14
+  object ClipConsoleShell: TTntMemo
+    Left = 0
+    Top = 0
+    Width = 520
+    Height = 430
+    Align = alClient
+    Color = clBlack
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -12
+    Font.Name = 'Consolas'
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 0
+  end
+end
