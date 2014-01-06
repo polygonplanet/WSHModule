@@ -187,8 +187,8 @@ end;
 procedure TClipConsoleForm.ConsoleLog(const FileName: WideString);
 begin
   FCanClose := False;
-  ClipConsoleShell.Text := '';
-  ClipConsoleShell.Lines.LoadFromFile(FileName);
+  ClipConsoleShell.Lines.Delimiter := #$0A;
+  ClipConsoleShell.Lines.Text := LoadFromFileAsUTF8(FileName);
 
   SetScreenCenter;
   ClipConsoleForm.Visible := True;
