@@ -43,9 +43,11 @@ WSHModule supports the following features:
 WSHModule not use file type association and Windows environment (eg., PATH etc).
 
 Quick test:
+
 Execute(drag-drop) `scripts/test.js` to `scripts/RunWSHModule.wsf`.
 or
 `cmd>wscript "/path/to/scripts/RunWSHModule.wsf" "your-script-path.js"`
+
 
 RunWSHModule.wsf is a shortcut of `bin/wshmodule.wsf` execution.
 
@@ -54,13 +56,13 @@ file definitions are following:
 
  * bin/wshmodule.wsf : WSHModule executable engine.
 
-   Simple usage:
+   Simple usage:  
    `cmd>wscript "/path/to/bin/wshmodule.wsf" "your-script-path.js"`
 
- * bin/ClipConsole.exe : A helper exe for console and clipboard access.
+ * bin/ClipConsole.exe : A helper exe for console and clipboard access.  
    ClipConsole's source code: bin/src/ClipConsole
 
- * bin/src/compile.js : A WSHModule source code compiler.
+ * bin/src/compile.js : A WSHModule source code compiler.  
    You can build your sources by execute(dblclick) compie.js. work with WSH/JScript.
 
 
@@ -71,6 +73,4 @@ Public Domain
 ## Authors
 
 * [polygon planet](https://github.com/polygonplanet) (twitter: [polygon_planet](http://twitter.com/polygon_planet))
-
-
 
