@@ -59,6 +59,15 @@ exports.fs.readFileSync = function(filename, encoding) {
 
 
 exports.fs.writeFileSync = function(filename, data, encoding) {
+  data = '' + data;
+
+  if (!data) {
+    withFileSystemObject(function() {
+      this.CreateTextFile(filename, true);
+    });
+    return;
+  }
+
   if (/^_?auto/i.test(encoding)) {
     encoding = '_autodetect_all';
   } else {
