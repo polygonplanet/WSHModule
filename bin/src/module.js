@@ -75,7 +75,7 @@ var Module = (function(builtins) {
       source = clean(source);
 
       options = options || {};
-      filename = filename || this.filename || WSHModule._filename;
+      filename = URI.normalize(filename || this.filename || WSHModule._filename);
       var dirname = URI.normalize(URI.parse(filename).dirname);
 
       mixin(context, {
