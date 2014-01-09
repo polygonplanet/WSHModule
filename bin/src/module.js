@@ -64,9 +64,8 @@ var Module = (function(builtins) {
     require: function(path) {
       return Module._load(path);
     },
-    _compile: function(source, filename) {
+    _compile: function(source, filename, options) {
       var vm = require('vm');
-      var options = typeof filename === 'object' ? filename : {};
       var context = vm.createContext({
         require: getRequire(this),
         exports: this.exports,
@@ -75,19 +74,19 @@ var Module = (function(builtins) {
       context.global = context;
       source = clean(source);
 
-      if (inSandbox || !filename || options.terminate) {
-        mixin(context, {
-          __filename: CURRENT_PATH,
-          __dirname: CURRENT_DIR
-        });
+      options = options || {};
+      filename = filename || this.filename || WSHModule._filename;
+      var dirname = URI.normalize(URI.parse(filename).dirname);
+
+      mixin(context, {
+        __filename: filename,
+        __dirname: dirname
+      });
+
+      if (inSandbox || options.terminate) {
         return vm.runInContext(source, context, options);
       }
 
-      filename = resolvePath(filename);
-      mixin(context, {
-        __filename: filename,
-        __dirname: URI.parse(filename).dirname
-      });
       return vm.runInNewContext(source, context, {
         filename: filename
       });
@@ -144,20 +143,24 @@ var Module = (function(builtins) {
   return Module;
 }(function(wm) {
   mixin(wm, {
-    load: function() {
-      wm._exportModules();
-
+    _setup: function() {
       var argc = wm._argc;
       if (argc > 0) {
         var filename = WScript.Arguments.Item(argc - 1);
         if (argc > 1 && filename === wm._fixed64bitSymbol) {
           filename = WScript.Arguments.Item(argc - 2);
         }
-        return Module._load(filename);
+        wm._filename = filename;
       }
+      return wm._exportModules();
+    },
+    load: function() {
+      wm._setup();
+
+      return Module._load(wm._filename);
     },
     runScript: function(code) {
-      wm._exportModules();
+      wm._setup();
 
       if (wm._inSandbox && !wm._termRegistered) {
         Env.on('terminate-script', function() {
@@ -169,7 +172,7 @@ var Module = (function(builtins) {
         wm._termRegistered = true;
       }
 
-      return new Module()._compile(code, {
+      return new Module()._compile(code, wm._filename, {
         terminate: true
       });
     },

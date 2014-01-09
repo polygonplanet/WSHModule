@@ -2413,7 +2413,7 @@ if(options.timeout){
 Env.setScriptTimeout(options.timeout);
 }
 try{
-Function('with(this){'+code+'}').call(context);
+Function('with(this){'+code+'\n}').call(context);
 }catch(e){
 if(options.displayErrors||options.displayErrors===void 0){
 WScript.Echo('Error: '+(e.message||e.description));
@@ -2507,13 +2507,14 @@ return source.split('[['+item[0]+']]').join(item[1]);
 _buildSource:function(code){
 var resolve64Code=toSourceCode(WSHModule._resolve_64bit_ScriptControl);
 var builtinDefCode=toSourceCode(WSHModule._builtinDefinition);
+var filename=JSON.stringify(WSHModule._filename);
 code=escapeCode(code);
 return format([
-'global.WSHModule={_fixed64bitSymbol:"{fixed64bit}",_inSandbox:true};',
+'global.WSHModule={_fixed64bitSymbol:"{fixed64bit}",_inSandbox:true,_filename:%s};',
 '(%s)();',
 '(%s)();',
 'WSHModule.runScript(%s);'
-].join('\n'),resolve64Code,builtinDefCode,code);
+].join('\n'),filename,resolve64Code,builtinDefCode,code);
 },
 evalInContext:function(code){
 var filename=this.filename;
@@ -2601,9 +2602,8 @@ this.loaded=true;
 require:function(path){
 return Module._load(path);
 },
-_compile:function(source,filename){
+_compile:function(source,filename,options){
 var vm=require('vm');
-var options=typeof filename==='object'?filename:{};
 var context=vm.createContext({
 require:getRequire(this),
 exports:this.exports,
@@ -2611,18 +2611,16 @@ module:this
 });
 context.global=context;
 source=clean(source);
-if(inSandbox||!filename||options.terminate){
-mixin(context,{
-__filename:CURRENT_PATH,
-__dirname:CURRENT_DIR
-});
-return vm.runInContext(source,context,options);
-}
-filename=resolvePath(filename);
+options=options||{};
+filename=filename||this.filename||WSHModule._filename;
+var dirname=URI.normalize(URI.parse(filename).dirname);
 mixin(context,{
 __filename:filename,
-__dirname:URI.parse(filename).dirname
+__dirname:dirname
 });
+if(inSandbox||options.terminate){
+return vm.runInContext(source,context,options);
+}
 return vm.runInNewContext(source,context,{
 filename:filename
 });
@@ -2674,19 +2672,23 @@ return module.exports;
 return Module;
 }(function(wm){
 mixin(wm,{
-load:function(){
-wm._exportModules();
+_setup:function(){
 var argc=wm._argc;
 if(argc>0){
 var filename=WScript.Arguments.Item(argc-1);
 if(argc>1&&filename===wm._fixed64bitSymbol){
 filename=WScript.Arguments.Item(argc-2);
 }
-return Module._load(filename);
+wm._filename=filename;
 }
+return wm._exportModules();
+},
+load:function(){
+wm._setup();
+return Module._load(wm._filename);
 },
 runScript:function(code){
-wm._exportModules();
+wm._setup();
 if(wm._inSandbox&&!wm._termRegistered){
 Env.on('terminate-script',function(){
 try{
@@ -2695,7 +2697,7 @@ require('fs').unlinkSync(CURRENT_PATH);
 });
 wm._termRegistered=true;
 }
-return new Module()._compile(code,{
+return new Module()._compile(code,wm._filename,{
 terminate:true
 });
 },

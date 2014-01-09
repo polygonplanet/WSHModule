@@ -21,7 +21,7 @@
       }
 
       try {
-        Function('with(this){' + code + '}').call(context);
+        Function('with(this){' + code + '\n}').call(context);
       } catch (e) {
         if (options.displayErrors || options.displayErrors === void 0) {
           WScript.Echo('Error: ' + (e.message || e.description));
@@ -126,14 +126,15 @@
       _buildSource: function(code) {
         var resolve64Code = toSourceCode(WSHModule._resolve_64bit_ScriptControl);
         var builtinDefCode = toSourceCode(WSHModule._builtinDefinition);
+        var filename = JSON.stringify(WSHModule._filename);
 
         code = escapeCode(code);
         return format([
-          'global.WSHModule={_fixed64bitSymbol:"{fixed64bit}",_inSandbox:true};',
+          'global.WSHModule={_fixed64bitSymbol:"{fixed64bit}",_inSandbox:true,_filename:%s};',
           '(%s)();',
           '(%s)();',
           'WSHModule.runScript(%s);'
-        ].join('\n'), resolve64Code, builtinDefCode, code);
+        ].join('\n'), filename, resolve64Code, builtinDefCode, code);
       },
       evalInContext: function(code) {
         var filename = this.filename;
