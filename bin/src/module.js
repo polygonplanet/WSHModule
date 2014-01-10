@@ -53,7 +53,7 @@ var Module = (function(builtins) {
   }, {
     load: function(filename) {
       this.filename = filename;
-      var extension = URI.getExt(filename).toLowerCase();
+      var extension = URI.extname(filename).toLowerCase();
 
       if (!Module.extensions[extension]) {
         extension = DEFAULT_EXTENSION;
@@ -75,8 +75,8 @@ var Module = (function(builtins) {
       source = clean(source);
 
       options = options || {};
-      filename = URI.normalize(filename || this.filename || WSHModule._filename);
-      var dirname = URI.normalize(URI.parse(filename).dirname);
+      filename = resolvePath(filename || this.filename || WSHModule._filename);
+      var dirname = URI.dirname(filename);
 
       mixin(context, {
         __filename: filename,

@@ -112,7 +112,7 @@
 
     return createConstructor(function(filename) {
       this.filename = URI.normalize(filename || this._getTempFile());
-      this.ext = URI.getExt(this.filename).toLowerCase();
+      this.ext = URI.extname(this.filename).toLowerCase();
     }, {
       _getTempFile: function(ext) {
         return CURRENT_DIR + DIR_SEPARATOR +

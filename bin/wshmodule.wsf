@@ -1911,10 +1911,35 @@ var capture=(
 '/dirname/-/filename/extension/+search/query/+hash/fragment'
 ).split('/');
 var pattern=new RegExp(
-'^(?:(([^:/\\\\?#.]+)(:+)|)(//|))(?:(([^/\\\\?#:]*):'+
-'([^/\\\\?#]*)|)(@)|)(?:(/|)([\\\\]{2})([^/\\\\?#]+)|([/\\\\])|'+
-'(([-\\w\\d\\u0100-\\uFFFF.%]*)(?::([0-9]+)|)|))((?:([^?#]*)([/\\\\])|)'+
-'([^/\\\\?#]*?(?:[.]([^.?#]*)|)|)|[^?#]+|)([?]([^#]*)|)(#(.*)|)$'
+'^'+
+'(?:'+
+'('+'([^:/\\\\?#.]+)'+'(:+)'+'|)'+
+'(//|)'+')'+
+'(?:'+
+'('+'([^/\\\\?#:]*):'+'([^/\\\\?#]*)'+'|)'+
+'(@)'+'|)'+
+'(?:'+
+'(/|)'+'([\\\\]{2})'+'([^/\\\\?#]+)'+'|'+
+'([/\\\\])'+'|'+
+'('+'([-\\w\\u0100-\\uFFFF.%]*)'+'(?:'+
+':([0-9]+)'+'|)'+
+'(?=/|$)'+
+'|)'+
+')'+
+'('+'(?:'+
+'([^?#]*)'+'([/\\\\])'+'|)'+
+'('+'[^/\\\\?#]*?'+
+'(?:'+
+'[.]'+
+'([^.?#]*)'+'|)'+
+'|)'+
+'|'+
+'[^?#]+'+
+'|)'+
+'('+'[?]'+
+'([^#]*)'+'|)'+
+'('+'#(.*)'+'|)'+
+'$'
 );
 var build=function(){
 var r=[];
@@ -1928,8 +1953,9 @@ r.push(this.separators[i]);
 return r.join('');
 };
 return function(uri){
-var result={};
+pattern.lastIndex=0;
 var items=uri.match(pattern)||[];
+var result={};
 var separators=[];
 for(var i=0,len=items.length;i<len;i++){
 var item=items[i]||'';
@@ -1998,16 +2024,25 @@ absPath=sep+absPath;
 }
 return absPath;
 },
-getExt:function(uri){
+extname:function(uri){
 var ext=uri.slice(uri.lastIndexOf('.')+1);
 return ext===uri?'':ext;
+},
+dirname:function(uri){
+var parts=URI.parse(uri);
+var dirname=parts.dirname;
+if(!dirname){
+return'.';
+}
+var protocol=parts.protocol;
+if(/^[a-z]:/i.test(protocol)){
+var sep=parts.separators.join('').charAt(0);
+return protocol+sep+dirname;
+}
+return dirname;
 }
 });
-exports.uri={
-URI:URI,
-parse:URI.parse,
-normalize:URI.normalize
-};
+exports.uri=URI;
 var DOM=(function(DOM){
 DOM.createHTML=function(content){
 var args=slice(arguments,1);
@@ -2168,34 +2203,43 @@ return new ActiveXObject('Microsoft.XMLHTTP');
 };
 return DOM;
 }({}));
+var resolvePath=function(path){
+return URI.normalize(path);
+};
 exports.fs.renameSync=function(oldPath,newPath){
+oldPath=resolvePath(oldPath);
+newPath=URI.parse(resolvePath(newPath)).filename;
 return withFileSystemObject(function(){
 this.GetFile(oldPath).Name=newPath;
 });
 };
 exports.fs.statSync=function(path){
+path=resolvePath(path);
 return withFileSystemObject(function(){
 var f=this.GetFile(path);
 var stat={
-size:f.size,
-atime:f.DateLastAccessed,
-mtime:f.DateLastModified,
-ctime:f.DateCreated
+size:(''+f.size).replace(/\D+/g,'')-0,
+atime:''+f.DateLastAccessed,
+mtime:''+f.DateLastModified,
+ctime:''+f.DateCreated
 };
 return f=null,stat;
 });
 };
 exports.fs.unlinkSync=function(path,force){
+path=resolvePath(path);
 return withFileSystemObject(function(){
 return this.DeleteFile(path,force);
 });
 };
 exports.fs.existsSync=function(path){
+path=resolvePath(path);
 return withFileSystemObject(function(){
 return this.FileExists(path);
 });
 };
 exports.fs.readFileSync=function(filename,encoding){
+filename=resolvePath(filename);
 if(/^_?auto/i.test(encoding)){
 encoding='_autodetect_all';
 }else{
@@ -2210,6 +2254,7 @@ return this.ReadText(-1);
 });
 };
 exports.fs.writeFileSync=function(filename,data,encoding){
+filename=resolvePath(filename);
 data=''+data;
 if(!data){
 withFileSystemObject(function(){
@@ -2251,11 +2296,15 @@ stream.SaveToFile(filename,2);
 stream.Close(),stream=null;
 };
 exports.fs.copySync=function(src,dst,overwrite){
+src=resolvePath(src);
+dst=resolvePath(dst);
 return withFileSystemObject(function(){
 return this.CopyFile(src,dst,overwrite);
 });
 };
 exports.fs.moveSync=function(src,dst){
+src=resolvePath(src);
+dst=resolvePath(dst);
 return withFileSystemObject(function(){
 return this.MoveFile(src,dst);
 });
@@ -2493,7 +2542,7 @@ return Function.prototype.toString.call(fn).replace(/^[\s()]+|[\s();]+$/g,'');
 };
 return createConstructor(function(filename){
 this.filename=URI.normalize(filename||this._getTempFile());
-this.ext=URI.getExt(this.filename).toLowerCase();
+this.ext=URI.extname(this.filename).toLowerCase();
 },{
 _getTempFile:function(ext){
 return CURRENT_DIR+DIR_SEPARATOR+
@@ -2592,7 +2641,7 @@ this.loaded=false;
 },{
 load:function(filename){
 this.filename=filename;
-var extension=URI.getExt(filename).toLowerCase();
+var extension=URI.extname(filename).toLowerCase();
 if(!Module.extensions[extension]){
 extension=DEFAULT_EXTENSION;
 }
@@ -2612,8 +2661,8 @@ module:this
 context.global=context;
 source=clean(source);
 options=options||{};
-filename=URI.normalize(filename||this.filename||WSHModule._filename);
-var dirname=URI.normalize(URI.parse(filename).dirname);
+filename=resolvePath(filename||this.filename||WSHModule._filename);
+var dirname=URI.dirname(filename);
 mixin(context,{
 __filename:filename,
 __dirname:dirname

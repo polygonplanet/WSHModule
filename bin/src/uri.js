@@ -12,10 +12,59 @@ var URI = createObject({
     // RFC 3986 URI Generic Syntax
     // Parsing a URI Reference with a Regular Expression
     var pattern = new RegExp(
-      '^(?:(([^:/\\\\?#.]+)(:+)|)(//|))(?:(([^/\\\\?#:]*):' +
-      '([^/\\\\?#]*)|)(@)|)(?:(/|)([\\\\]{2})([^/\\\\?#]+)|([/\\\\])|' +
-      '(([-\\w\\d\\u0100-\\uFFFF.%]*)(?::([0-9]+)|)|))((?:([^?#]*)([/\\\\])|)' +
-      '([^/\\\\?#]*?(?:[.]([^.?#]*)|)|)|[^?#]+|)([?]([^#]*)|)(#(.*)|)$'
+      '^' +
+      '(?:' +
+        '(' + // (1) protocol
+          '([^:/\\\\?#.]+)' + // (2) scheme
+          '(:+)' + // (3) -
+        '|)' +
+        '(//|)' + // (4) -
+      ')' +
+      '(?:' +
+        '(' + // (5) userinfo
+          '([^/\\\\?#:]*):' + // (6) username
+          '([^/\\\\?#]*)' + // (7) password
+        '|)' +
+        '(@)' + // (8) -
+      '|)' +
+      '(?:' +
+        '(/|)' + // (9) -
+        '([\\\\]{2})' + // (10) -
+        '([^/\\\\?#]+)' + // (11) network
+      '|' +
+        '([/\\\\])' + // (12) -
+      '|' +
+        '(' + // (13) host
+          '([-\\w\\u0100-\\uFFFF.%]*)' + // (14) hostname
+          '(?:' +
+            ':([0-9]+)' + // (15) port
+          '|)' +
+          '(?=/|$)' +
+        '|)' +
+      ')' +
+      '(' + // (16) pathname
+        '(?:' +
+          '([^?#]*)' + // (17) dirname
+          '([/\\\\])' + // (18) -
+        '|)' +
+        '(' + // (19) filename
+          '[^/\\\\?#]*?' +
+          '(?:' +
+            '[.]' +
+            '([^.?#]*)' + // (20) extension
+          '|)' +
+        '|)' +
+      '|' +
+        '[^?#]+' +
+      '|)' +
+        '(' + // (21) search
+          '[?]' +
+          '([^#]*)' + // (22) query
+        '|)' +
+        '(' + // (23) hash
+          '#(.*)' + // (24) fragment
+        '|)' +
+      '$'
     );
 
     var build = function() {
@@ -31,8 +80,10 @@ var URI = createObject({
     };
 
     return function(uri) {
-      var result = {};
+      pattern.lastIndex = 0;
+
       var items = uri.match(pattern) || [];
+      var result = {};
       var separators = [];
 
       for (var i = 0, len = items.length; i < len; i++) {
@@ -118,17 +169,26 @@ var URI = createObject({
     }
     return absPath;
   },
-  getExt: function(uri) {
+  extname: function(uri) {
     var ext = uri.slice(uri.lastIndexOf('.') + 1);
     return ext === uri ? '' : ext;
+  },
+  dirname: function(uri) {
+    var parts = URI.parse(uri);
+    var dirname = parts.dirname;
+
+    if (!dirname) {
+      return '.';
+    }
+
+    var protocol = parts.protocol;
+    if (/^[a-z]:/i.test(protocol)) {
+      var sep = parts.separators.join('').charAt(0);
+      return protocol + sep + dirname;
+    }
+    return dirname;
   }
 });
 
-
-exports.uri = {
-  URI: URI,
-  parse: URI.parse,
-  normalize: URI.normalize
-};
-
+exports.uri = URI;
 

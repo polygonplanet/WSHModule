@@ -5,7 +5,14 @@
  * http://nodejs.jp/nodejs.org_ja/docs/v0.10/api/fs.html
  */
 
+var resolvePath = function(path) {
+  return URI.normalize(path);
+};
+
 exports.fs.renameSync = function(oldPath, newPath) {
+  oldPath = resolvePath(oldPath);
+  newPath = URI.parse(resolvePath(newPath)).filename;
+
   return withFileSystemObject(function() {
     this.GetFile(oldPath).Name = newPath;
   });
@@ -13,13 +20,15 @@ exports.fs.renameSync = function(oldPath, newPath) {
 
 
 exports.fs.statSync = function(path) {
+  path = resolvePath(path);
+
   return withFileSystemObject(function() {
     var f = this.GetFile(path);
     var stat = {
-      size: f.size,
-      atime: f.DateLastAccessed,
-      mtime: f.DateLastModified,
-      ctime: f.DateCreated
+      size: ('' + f.size).replace(/\D+/g, '') - 0,
+      atime: '' + f.DateLastAccessed,
+      mtime: '' + f.DateLastModified,
+      ctime: '' + f.DateCreated
     };
     return f = null, stat;
   });
@@ -27,6 +36,8 @@ exports.fs.statSync = function(path) {
 
 
 exports.fs.unlinkSync = function(path, force) {
+  path = resolvePath(path);
+
   return withFileSystemObject(function() {
     return this.DeleteFile(path, force);
   });
@@ -34,6 +45,8 @@ exports.fs.unlinkSync = function(path, force) {
 
 
 exports.fs.existsSync = function(path) {
+  path = resolvePath(path);
+
   return withFileSystemObject(function() {
     return this.FileExists(path);
   });
@@ -42,6 +55,8 @@ exports.fs.existsSync = function(path) {
 
 //XXX: Read as binary when omitted encoding
 exports.fs.readFileSync = function(filename, encoding) {
+  filename = resolvePath(filename);
+
   if (/^_?auto/i.test(encoding)) {
     encoding = '_autodetect_all';
   } else {
@@ -59,6 +74,7 @@ exports.fs.readFileSync = function(filename, encoding) {
 
 
 exports.fs.writeFileSync = function(filename, data, encoding) {
+  filename = resolvePath(filename);
   data = '' + data;
 
   if (!data) {
@@ -110,6 +126,9 @@ exports.fs.writeFileSync = function(filename, data, encoding) {
 
 // extra functions: copySync
 exports.fs.copySync = function(src, dst, overwrite) {
+  src = resolvePath(src);
+  dst = resolvePath(dst);
+
   return withFileSystemObject(function() {
     return this.CopyFile(src, dst, overwrite);
   });
@@ -118,6 +137,9 @@ exports.fs.copySync = function(src, dst, overwrite) {
 
 // extra functions: moveSync
 exports.fs.moveSync = function(src, dst) {
+  src = resolvePath(src);
+  dst = resolvePath(dst);
+
   return withFileSystemObject(function() {
     return this.MoveFile(src, dst);
   });
