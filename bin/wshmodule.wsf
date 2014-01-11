@@ -2446,7 +2446,159 @@ Console.dir=Console.trace=Console.log;
 return Console;
 }());
 exports.console=console;
+var tokenize=(function(){
+var TOKEN=1,
+REGEX_PREFIX=2,
+NL=3,
+REGEX_LITERAL=4;
+var re={
+token:new RegExp(
+'('+'/[*][\\s\\S]*?[*]/'+'|'+'/{2,}[^\\r\\n]*(?:\\r\\n|\\r|\\n|)'+'|'+'"(?:\\\\[\\s\\S]|[^"\\r\\n\\\\])*"'+'|'+"'(?:\\\\[\\s\\S]|[^'\\r\\n\\\\])*'"+'|'+'('+'^'+'|'+'[-!%&*+,/:;<=>?[{(^|~]'+
+')'+
+'(?:'+
+'('+'(?!'+'[\\r\\n])\\s+'+
+'|'+'(?:\\r\\n|\\r|\\n)'+
+')'+
+'|'+'\\s*'+
+')'+
+'(?:'+
+'('+'(?:/(?![*])(?:\\\\.|[^/\\r\\n\\\\])+/)'+
+'(?:[gimy]{0,4}|\\b)'+
+')'+
+'(?=\\s*'+
+'(?:'+'(?!\\s*[/\\\\<>*+%`^"\'\\w$-])'+
+'[^/\\\\<>*+%`^\'"@({[\\w$-]'+
+'|'+'===?'+
+'|'+'!==?'+
+'|'+'[|][|]'+
+'|'+'[&][&]'+
+'|'+'/(?:[*]|/)'+
+'|'+'[,.;:!?)}\\]\\r\\n]'+
+'|'+'$'+
+')'+
+')'+
+')'+
+'|'+'>>>=?|<<=|===|!==|>>='+'|'+'[+][+](?=[+])|[-][-](?=[-])'+
+'|'+'[=!<>*+/&|^-]='+
+'|'+'[&][&]|[|][|]|[+][+]|[-][-]|<<|>>'+
+'|'+'0(?:[xX][0-9a-fA-F]+|[0-7]+)'+'|'+'\\d+(?:[.]\\d+)?(?:[eE][+-]?\\d+)?'+
+'|'+'[1-9]\\d*'+
+'|'+'[-+/%*=&|^~<>!?:,;@()\\\\[\\].{}]'+'|'+'(?:(?![\\r\\n])\\s)+'+'|'+'(?:\\r\\n|\\r|\\n)'+'|'+'[^\\s+/%*=&|^~<>!?:,;@()\\\\[\\].{}\'"-]+'+')',
+'g'
+),
+nl:/^(?:\r\n|\r|\n)/,
+notSpace:/[\S\r\n]/,
+comments:/^\/{2,}[\s\S]*$|^\/[*][\s\S]*?[*]\/$/
+};
+return function(code){
+var tokens=[];
+var token,prev,m;
+re.token.lastIndex=0;
+while((m=re.token.exec(code))!=null){
+token=m[TOKEN];
+if(!re.notSpace.test(token)||re.comments.test(token)){
+continue;
+}
+if(m[REGEX_LITERAL]){
+if(m[REGEX_PREFIX]){
+tokens.push(m[REGEX_PREFIX]);
+}
+if(m[NL]&&re.notSpace.test(m[NL])){
+tokens.push(m[NL]);
+}
+tokens.push(m[REGEX_LITERAL]);
+}else{
+prev=tokens[tokens.length-1];
+if(!prev||!re.nl.test(prev)||!re.nl.test(token)){
+tokens.push(token);
+}
+}
+}
+return tokens;
+};
+}());
+var untokenize=(function(){
+var word=/[\s+\/%*=&|^~<>!?:,;@()\\[\].{}'"-]/;
+var sign=/[^+-]/;
+return function(tokens){
+var r=[];
+var prev,token,space;
+for(var i=0,len=tokens.length;i<len;prev=tokens[i++]){
+token=tokens[i];
+if(!prev){
+r.push(token);
+continue;
+}
+space=(!sign.test(token)&&!sign.test(prev))||
+(!word.test(prev.slice(-1))&&
+!word.test(token.charAt(0)))?' ':'';
+r.push(space+token);
+}
+return r.join('');
+};
+}());
+var minify=function(code){
+return untokenize(tokenize(code));
+};
+exports.tokenizer={
+tokenize:tokenize,
+untokenize:untokenize,
+minify:minify
+};
+var Compiler=function(code){
+this.code=code;
+};
+Compiler.prototype={
+compile:function(){
+this.tokens=tokenize(this.code);
+this.tokens=this.resolveTryFinally(this.tokens);
+return untokenize(this.tokens);
+},
+resolveTryFinally:function(tokens){
+var res=[];
+var depths=[];
+var level=0;
+var token,prev,next;
+for(var i=0,len=tokens.length;i<len;prev=tokens[i++]){
+token=tokens[i];
+next=i<=len?tokens[i+1]:null;
+switch(token){
+case'{':
+level++;
+break;
+case'}':
+level--;
+break;
+case'try':
+if(next==='{'){
+depths.push(level);
+}
+break;
+case'catch':
+if(prev==='}'&&next==='('&&depths[depths.length-1]===level){
+depths.pop();
+}
+break;
+case'finally':
+if(depths[depths.length-1]===level&&next==='{'&&prev==='}'){
+res.push('catch(e){throw e;}');
+depths.pop();
+}
+break;
+}
+res.push(token);
+}
+return res;
+}
+};
+exports.compiler={
+compile:function(code){
+var compiler=new Compiler(code);
+return compiler.compile();
+}
+};
 (function(){
+var compile=require('compiler').compile;
 var Script=createConstructor(function(code,options){
 this.code=code;
 this.options=mixin({},options||{});
@@ -2461,6 +2613,7 @@ code=require('fs').readFileSync(options.filename);
 if(options.timeout){
 Env.setScriptTimeout(options.timeout);
 }
+code=compile(code);
 try{
 Function('with(this){'+code+'\n}').call(context);
 }catch(e){
@@ -2557,7 +2710,7 @@ _buildSource:function(code){
 var resolve64Code=toSourceCode(WSHModule._resolve_64bit_ScriptControl);
 var builtinDefCode=toSourceCode(WSHModule._builtinDefinition);
 var filename=JSON.stringify(WSHModule._filename);
-code=escapeCode(code);
+code=escapeCode(compile(code));
 return format([
 'global.WSHModule={_fixed64bitSymbol:"{fixed64bit}",_inSandbox:true,_filename:%s};',
 '(%s)();',
@@ -2698,10 +2851,6 @@ var cachedModule=Module.cache[filename];
 if(cachedModule){
 return cachedModule.exports;
 }
-var builtinExports=Module._builtins[path];
-if(builtinExports){
-return builtinExports;
-}
 var module=new Module(filename);
 Module.cache[filename]=module;
 var hadException=true;
@@ -2709,6 +2858,10 @@ try{
 module.load(filename);
 hadException=false;
 }catch(e){
+var builtinExports=Module._builtins[path];
+if(builtinExports){
+return builtinExports;
+}
 throw e;
 }finally{
 if(hadException){
