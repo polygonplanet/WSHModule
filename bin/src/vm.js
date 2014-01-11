@@ -117,7 +117,7 @@
       this.ext = URI.extname(this.filename).toLowerCase();
     }, {
       _getTempFile: function(ext) {
-        return CURRENT_DIR + DIR_SEPARATOR +
+        return WSHM_DIR + DIR_SEP +
                '__' + generateId() + '.' + (ext || DEFAULT_EXT).toLowerCase();
       },
       _getFileSource: function(code) {

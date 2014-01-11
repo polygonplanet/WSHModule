@@ -5,7 +5,7 @@ var DOM = (function(DOM) {
 
   DOM.createHTML = function(content) {
     var args = slice(arguments, 1);
-    var document = WScript.GetObject(CURRENT_PATH, 'htmlfile');
+    var document = WScript.GetObject(WSHM_PATH, 'htmlfile');
 
     if (content == null) {
       content = [
@@ -76,10 +76,12 @@ var DOM = (function(DOM) {
   DOM.window = DOM._globalContext.window;
   DOM.document = DOM._globalContext.document;
 
-  DOM.location = new String(CURRENT_PATH);
-  DOM.location.href = '' + DOM.location;
+  Env.on('setup-wshmodule', function() {
+    DOM.location = new String(URI.normalize(WSHModule._filename));
+    DOM.location.href = '' + DOM.location;
 
-  (function(paths) {
+    var paths = URI.parse(DOM.location.href);
+
     mixin(DOM.location, {
       hash: paths.hash,
       host: paths.host,
@@ -90,7 +92,7 @@ var DOM = (function(DOM) {
       search: paths.search,
       href: paths.href
     });
-  }(URI.parse(DOM.location.href)));
+  });
 
 
   // alert/confirm/prompt

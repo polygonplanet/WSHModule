@@ -109,7 +109,7 @@ var URI = createObject({
   }()),
 
   normalize: function(uri, base) {
-    var cur = '' + (base || CURRENT_PATH);
+    var cur = '' + (base || Env.cwd());
     var path = uri && (uri.href || uri.path) || uri;
 
     if (!path) {
@@ -135,7 +135,7 @@ var URI = createObject({
       cur = sep + sep + specs.network + sep;
       path = path.substring(cur.length);
     } else if (!reProtocol.test(path)) {
-      path = cur.replace(/([\/\\])[^\/\\]*$/g, '$1') + path;
+      path = cur + sep + path;
     }
 
     path = path.substring(protocol.length);
@@ -191,4 +191,6 @@ var URI = createObject({
 });
 
 exports.uri = URI;
+
+Env.trigger('load-uri');
 

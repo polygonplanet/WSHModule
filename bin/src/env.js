@@ -3,15 +3,32 @@
  */
 var Env = new (extend(Events, {
   init: function() {
+    this.on('load-uri', function() {
+      // handle a script drag-and-drop
+      if (WSHModule._filename &&
+          URI.normalize(WSHModule._filename) === WSHModule._filename) {
+        this.cwd(URI.dirname(WSHModule._filename));
+      }
+    }.bind(this));
+
     this.setScriptTimeout(this.getScriptTimeout());
     this.SCRIPT_START_TIME = Date.now();
     this.trigger('start-script');
   },
 
-  CURRENT_PATH: CURRENT_PATH,
-  CURRENT_DIR: CURRENT_DIR,
-  DIR_SEPARATOR: DIR_SEPARATOR,
+  WSHM_PATH: WSHM_PATH,
+  WSHM_DIR: WSHM_DIR,
+  DIR_SEP: DIR_SEP,
   EXTERNAL_CONSOLE_PATH: EXTERNAL_CONSOLE_PATH,
+
+  cwd: function(dir) {
+    return withShell(function() {
+      if (dir) {
+        this.CurrentDirectory = dir;
+      }
+      return '' + this.CurrentDirectory;
+    });
+  },
 
   WAIT_INTERVAL: 30,
   ACTIVE_INTERVAL: 5000,

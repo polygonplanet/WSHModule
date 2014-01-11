@@ -5,12 +5,11 @@
 var Module = (function(builtins) {
 
   var DEFAULT_EXTENSION = 'js';
-  var MODULE_PATH = URI.normalize(CURRENT_DIR + [
+  var MODULE_PATH = URI.normalize(WSHM_DIR + [
     '',
     '..',
-    'modules',
-    'dummy.js'
-  ].join(DIR_SEPARATOR));
+    'modules'
+  ].join(DIR_SEP));
 
   var inSandbox = !!WSHModule._inSandbox;
 
@@ -36,7 +35,7 @@ var Module = (function(builtins) {
 
 
   var resolvePath = function(path) {
-    return URI.normalize(path, inSandbox ? MODULE_PATH : CURRENT_PATH);
+    return URI.normalize(path, inSandbox ? MODULE_PATH : null);
   };
 
 
@@ -143,14 +142,20 @@ var Module = (function(builtins) {
 }(function(wm) {
   mixin(wm, {
     _setup: function() {
-      var argc = wm._argc;
-      if (argc > 0) {
-        var filename = WScript.Arguments.Item(argc - 1);
-        if (argc > 1 && filename === wm._fixed64bitSymbol) {
-          filename = WScript.Arguments.Item(argc - 2);
+      if (!wm._filename) {
+        var argc = wm._argc;
+
+        if (argc > 0) {
+          var filename = WScript.Arguments.Item(argc - 1);
+
+          if (argc > 1 && filename === wm._fixed64bitSymbol) {
+            filename = WScript.Arguments.Item(argc - 2);
+          }
+          wm._filename = filename;
         }
-        wm._filename = filename;
       }
+
+      Env.trigger('setup-wshmodule');
       return wm._exportModules();
     },
     load: function() {
@@ -165,7 +170,7 @@ var Module = (function(builtins) {
         Env.on('terminate-script', function() {
           try {
             // Remove a temporary sandbox file.
-            require('fs').unlinkSync(CURRENT_PATH);
+            require('fs').unlinkSync(WSHM_PATH);
           } catch (e) {}
         });
         wm._termRegistered = true;

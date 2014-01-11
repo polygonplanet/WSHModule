@@ -8,12 +8,11 @@ var hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnPr
 var toString = Object.prototype.toString.call.bind(Object.prototype.toString);
 
 
-var CURRENT_PATH = ('' + WScript.ScriptFullName).replace(/^file:\/+/i, '');
-var DIR_SEPARATOR = CURRENT_PATH.split('\\').length >= CURRENT_PATH.split('/').length ? '\\' : '/';
-var CURRENT_DIR = CURRENT_PATH.substring(0, CURRENT_PATH.lastIndexOf(DIR_SEPARATOR));
-// External console/clipboard utility
-// WSH can't set text to clipboard
-var EXTERNAL_CONSOLE_PATH = CURRENT_DIR + DIR_SEPARATOR + 'ClipConsole.exe';
+var WSHM_PATH = ('' + WScript.ScriptFullName).replace(/^file:\/+/i, '');
+var DIR_SEP = WSHM_PATH.split('\\').length >= WSHM_PATH.split('/').length ? '\\' : '/';
+var WSHM_DIR = WSHM_PATH.substring(0, WSHM_PATH.lastIndexOf(DIR_SEP));
+// External console/clipboard utility. WSH can't set text to clipboard
+var EXTERNAL_CONSOLE_PATH = WSHM_DIR + DIR_SEP + 'ClipConsole.exe';
 
 
 var mixin = exports.util.mixin = function(target) {

@@ -15,9 +15,8 @@ WSHModule._resolve_64bit_ScriptControl = function() {
     return;
   }
 
-  var arg = WScript.Arguments.Item(argc - 1);
-
-  if (arg === symbol) {
+  var filename = WScript.Arguments.Item(argc - 1);
+  if (filename === symbol) {
     return;
   }
 
@@ -34,7 +33,7 @@ WSHModule._resolve_64bit_ScriptControl = function() {
     sh.Run([
       '"' + wsh32,
       WScript.ScriptFullName,
-      arg + '"'
+      filename + '"'
     ].join('" "'), 4, false);
 
     WScript.Quit();
@@ -1399,10 +1398,10 @@ exports.util={};
 var slice=Array.prototype.slice.call.bind(Array.prototype.slice);
 var hasOwn=Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 var toString=Object.prototype.toString.call.bind(Object.prototype.toString);
-var CURRENT_PATH=(''+WScript.ScriptFullName).replace(/^file:\/+/i,'');
-var DIR_SEPARATOR=CURRENT_PATH.split('\\').length>=CURRENT_PATH.split('/').length?'\\':'/';
-var CURRENT_DIR=CURRENT_PATH.substring(0,CURRENT_PATH.lastIndexOf(DIR_SEPARATOR));
-var EXTERNAL_CONSOLE_PATH=CURRENT_DIR+DIR_SEPARATOR+'ClipConsole.exe';
+var WSHM_PATH=(''+WScript.ScriptFullName).replace(/^file:\/+/i,'');
+var DIR_SEP=WSHM_PATH.split('\\').length>=WSHM_PATH.split('/').length?'\\':'/';
+var WSHM_DIR=WSHM_PATH.substring(0,WSHM_PATH.lastIndexOf(DIR_SEP));
+var EXTERNAL_CONSOLE_PATH=WSHM_DIR+DIR_SEP+'ClipConsole.exe';
 var mixin=exports.util.mixin=function(target){
 slice(arguments,1).forEach(function(source){
 var key,keys=Object.keys(source);
@@ -1851,14 +1850,28 @@ return this;
 exports.events=Events;
 var Env=new(extend(Events,{
 init:function(){
+this.on('load-uri',function(){
+if(WSHModule._filename&&
+URI.normalize(WSHModule._filename)===WSHModule._filename){
+this.cwd(URI.dirname(WSHModule._filename));
+}
+}.bind(this));
 this.setScriptTimeout(this.getScriptTimeout());
 this.SCRIPT_START_TIME=Date.now();
 this.trigger('start-script');
 },
-CURRENT_PATH:CURRENT_PATH,
-CURRENT_DIR:CURRENT_DIR,
-DIR_SEPARATOR:DIR_SEPARATOR,
+WSHM_PATH:WSHM_PATH,
+WSHM_DIR:WSHM_DIR,
+DIR_SEP:DIR_SEP,
 EXTERNAL_CONSOLE_PATH:EXTERNAL_CONSOLE_PATH,
+cwd:function(dir){
+return withShell(function(){
+if(dir){
+this.CurrentDirectory=dir;
+}
+return''+this.CurrentDirectory;
+});
+},
 WAIT_INTERVAL:30,
 ACTIVE_INTERVAL:5000,
 MAX_SCRIPT_TIMEOUT:300*1000,
@@ -1977,7 +1990,7 @@ build:build
 };
 }()),
 normalize:function(uri,base){
-var cur=''+(base||CURRENT_PATH);
+var cur=''+(base||Env.cwd());
 var path=uri&&(uri.href||uri.path)||uri;
 if(!path){
 return cur;
@@ -1997,7 +2010,7 @@ if(specs.network){
 cur=sep+sep+specs.network+sep;
 path=path.substring(cur.length);
 }else if(!reProtocol.test(path)){
-path=cur.replace(/([\/\\])[^\/\\]*$/g,'$1')+path;
+path=cur+sep+path;
 }
 path=path.substring(protocol.length);
 var parts=path.split(/[\/\\]/);
@@ -2043,10 +2056,11 @@ return dirname;
 }
 });
 exports.uri=URI;
+Env.trigger('load-uri');
 var DOM=(function(DOM){
 DOM.createHTML=function(content){
 var args=slice(arguments,1);
-var document=WScript.GetObject(CURRENT_PATH,'htmlfile');
+var document=WScript.GetObject(WSHM_PATH,'htmlfile');
 if(content==null){
 content=[
 '<!doctype html>',
@@ -2105,9 +2119,10 @@ DOM._contexts.length=0;
 DOM._globalContext=DOM.createContext();
 DOM.window=DOM._globalContext.window;
 DOM.document=DOM._globalContext.document;
-DOM.location=new String(CURRENT_PATH);
+Env.on('setup-wshmodule',function(){
+DOM.location=new String(URI.normalize(WSHModule._filename));
 DOM.location.href=''+DOM.location;
-(function(paths){
+var paths=URI.parse(DOM.location.href);
 mixin(DOM.location,{
 hash:paths.hash,
 host:paths.host,
@@ -2118,7 +2133,7 @@ protocol:paths.protocol,
 search:paths.search,
 href:paths.href
 });
-}(URI.parse(DOM.location.href)));
+});
 alert=exports.globals.alert=function(msg){
 WScript.Echo(''+msg);
 };
@@ -2311,8 +2326,8 @@ return this.MoveFile(src,dst);
 };
 var Clipboard=(function(){
 var CLIP_TMPFILE=format('%s%s__WSHModule_ClipTmp_%s_%s.txt',
-CURRENT_DIR,
-DIR_SEPARATOR,
+WSHM_DIR,
+DIR_SEP,
 formatDate('YYYYMMDDHHmmss'),
 Math.random().toString(36).slice(2)
 );
@@ -2394,8 +2409,8 @@ cut:Clipboard.cut
 };
 var console=exports.globals.console=(function(){
 var CONSOLE_TMPFILE=format('%s%s__WSHModule_ConsoleTmp_%s_%s.txt',
-CURRENT_DIR,
-DIR_SEPARATOR,
+WSHM_DIR,
+DIR_SEP,
 formatDate('YYYYMMDDHHmmss'),
 Math.random().toString(36).slice(2)
 );
@@ -2698,7 +2713,7 @@ this.filename=URI.normalize(filename||this._getTempFile());
 this.ext=URI.extname(this.filename).toLowerCase();
 },{
 _getTempFile:function(ext){
-return CURRENT_DIR+DIR_SEPARATOR+
+return WSHM_DIR+DIR_SEP+
 '__'+generateId()+'.'+(ext||DEFAULT_EXT).toLowerCase();
 },
 _getFileSource:function(code){
@@ -2758,12 +2773,11 @@ return context instanceof Context;
 }());
 var Module=(function(builtins){
 var DEFAULT_EXTENSION='js';
-var MODULE_PATH=URI.normalize(CURRENT_DIR+[
+var MODULE_PATH=URI.normalize(WSHM_DIR+[
 '',
 '..',
-'modules',
-'dummy.js'
-].join(DIR_SEPARATOR));
+'modules'
+].join(DIR_SEP));
 var inSandbox=!!WSHModule._inSandbox;
 var clean=function(src){
 if(src.charCodeAt(0)===0xFEFF){
@@ -2781,7 +2795,7 @@ extensions:Module.extensions
 });
 };
 var resolvePath=function(path){
-return URI.normalize(path,inSandbox?MODULE_PATH:CURRENT_PATH);
+return URI.normalize(path,inSandbox?MODULE_PATH:null);
 };
 var resolveExtension=function(path){
 var ext=DEFAULT_EXTENSION;
@@ -2875,6 +2889,7 @@ return Module;
 }(function(wm){
 mixin(wm,{
 _setup:function(){
+if(!wm._filename){
 var argc=wm._argc;
 if(argc>0){
 var filename=WScript.Arguments.Item(argc-1);
@@ -2883,6 +2898,8 @@ filename=WScript.Arguments.Item(argc-2);
 }
 wm._filename=filename;
 }
+}
+Env.trigger('setup-wshmodule');
 return wm._exportModules();
 },
 load:function(){
@@ -2894,7 +2911,7 @@ wm._setup();
 if(wm._inSandbox&&!wm._termRegistered){
 Env.on('terminate-script',function(){
 try{
-require('fs').unlinkSync(CURRENT_PATH);
+require('fs').unlinkSync(WSHM_PATH);
 }catch(e){}
 });
 wm._termRegistered=true;

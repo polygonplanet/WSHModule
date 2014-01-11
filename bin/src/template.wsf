@@ -15,9 +15,8 @@ WSHModule._resolve_64bit_ScriptControl = function() {
     return;
   }
 
-  var arg = WScript.Arguments.Item(argc - 1);
-
-  if (arg === symbol) {
+  var filename = WScript.Arguments.Item(argc - 1);
+  if (filename === symbol) {
     return;
   }
 
@@ -34,7 +33,7 @@ WSHModule._resolve_64bit_ScriptControl = function() {
     sh.Run([
       '"' + wsh32,
       WScript.ScriptFullName,
-      arg + '"'
+      filename + '"'
     ].join('" "'), 4, false);
 
     WScript.Quit();

@@ -4,8 +4,8 @@
 var Clipboard = (function() {
 
   var CLIP_TMPFILE = format('%s%s__WSHModule_ClipTmp_%s_%s.txt',
-    CURRENT_DIR,
-    DIR_SEPARATOR,
+    WSHM_DIR,
+    DIR_SEP,
     formatDate('YYYYMMDDHHmmss'),
     Math.random().toString(36).slice(2)
   );

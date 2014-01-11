@@ -4,8 +4,8 @@
 var console = exports.globals.console = (function() {
 
   var CONSOLE_TMPFILE = format('%s%s__WSHModule_ConsoleTmp_%s_%s.txt',
-    CURRENT_DIR,
-    DIR_SEPARATOR,
+    WSHM_DIR,
+    DIR_SEP,
     formatDate('YYYYMMDDHHmmss'),
     Math.random().toString(36).slice(2)
   );
