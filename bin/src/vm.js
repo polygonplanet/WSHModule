@@ -2,6 +2,7 @@
  * Sandbox like VM context.
  */
 (function() {
+  var compile = require('compiler').compile;
 
   var Script = createConstructor(function(code, options) {
     this.code = code;
@@ -20,6 +21,7 @@
         Env.setScriptTimeout(options.timeout);
       }
 
+      code = compile(code);
       try {
         Function('with(this){' + code + '\n}').call(context);
       } catch (e) {
@@ -128,7 +130,7 @@
         var builtinDefCode = toSourceCode(WSHModule._builtinDefinition);
         var filename = JSON.stringify(WSHModule._filename);
 
-        code = escapeCode(code);
+        code = escapeCode(compile(code));
         return format([
           'global.WSHModule={_fixed64bitSymbol:"{fixed64bit}",_inSandbox:true,_filename:%s};',
           '(%s)();',
