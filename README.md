@@ -38,11 +38,11 @@ WSHModule supports the following features:
 
 Runs script with WSHModule:  
 
-`cmd>wscript "WSHModule/bin/wshmodule.wsf" "myscript.js"`  
+`cmd>wscript "bin/wshmodule.wsf" "/path/to/myscript.js"`  
 
 or  
 
-Execute(drag-drop) `myscript.js` to `WSHModule/bin/wshmodule.wsf`
+Execute(drag-drop) `/path/to/myscript.js` to `bin/wshmodule.wsf`
 
 
 ## File Overview
@@ -51,15 +51,23 @@ Currently, WSHModule does not use file type association and Windows environment 
 
 file definitions are following:
 
- * `WSHModule/bin/wshmodule.wsf` : WSHModule script engine.
+ * `bin/wshmodule.wsf` : WSHModule script engine.
 
- * `WSHModule/bin/ClipConsole.exe` : helper for console and clipboard access.  
+ * `bin/ClipConsole.exe` : helper for console and clipboard access.  
    Note WSH/JScript can't access to clipboard without security dialog.  
-   ClipConsole's source code: `WSHModule/bin/src/ClipConsole`
+   ClipConsole's source code: `bin/src/ClipConsole`
 
- * `WSHModule/bin/src/compiler.js` : WSHModule source code compiler.  
-   compiler.js provides to build `wshmodule.wsf` from sources `WSHModule/bin/src/*.js`  
-   compile: `cmd>wscript "WSHModule/bin/src/compiler.js"` or execute (dblclick) compiler.js
+ * `bin/src/compiler.js` : WSHModule source code compiler.  
+   compiler.js provides to build `wshmodule.wsf` from sources `bin/src/*.js`  
+   compile: `cmd>wscript "bin/src/compiler.js"` or execute (dblclick) compiler.js
+
+## Test
+
+Runs test script:  
+
+  1. `>rename WSHModule-master WSHModule` if downloaded zip from master.
+  2. `>cd WSHModule`
+  3. `>wscript "bin/wshmodule.wsf" "scripts/test.js"`
 
 
 ## License
