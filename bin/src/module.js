@@ -117,11 +117,6 @@ var Module = (function(builtins) {
         return cachedModule.exports;
       }
 
-      var builtinExports = Module._builtins[path];
-      if (builtinExports) {
-        return builtinExports;
-      }
-
       var module = new Module(filename);
       Module.cache[filename] = module;
 
@@ -130,6 +125,10 @@ var Module = (function(builtins) {
         module.load(filename);
         hadException = false;
       } catch (e) {
+        var builtinExports = Module._builtins[path];
+        if (builtinExports) {
+          return builtinExports;
+        }
         throw e;
       } finally {
         if (hadException) {
