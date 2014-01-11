@@ -6,9 +6,6 @@ It is a subset of the JavaScript executable engine that supports to compatible w
 
 WSHModule's script run at module scope (CommonJS/UMD) that means it can use `require`, `exports` and `module` objects.
 
-WSHModule has a policy that aims to ECMAScript more standard, to reduce the extra extension.
-
-
 ## Compatibility
 
 Currently work in:
@@ -25,45 +22,44 @@ WSHModule supports the following features:
 
   * Supports ECMAScript5 standard syntax.
   * Supports CommonJS Universal Module Definition (UMD).
-  * Available with UTF-8 script file.
-  * Supports basic DOM functions: alert/confirm/prompt, setTimeout/clearTimeout and setInterval/clearInterval.
+  * Working with UTF-8 encoding.
+  * Supports standard DOM functions: alert/confirm/prompt, setTimeout/clearTimeout and setInterval/clearInterval.
   * Supports a console window.
-  * Fixed JScript bug: String.prototype.substr, indexOf and splice functions to standard ECMA-262.
-  * Supports basic builtin modules (clip, console, fs, uri, util, vm).
+  * Fixed JScript bug: try-finally statements, String.prototype.substr, indexOf and Array.prototype.splice functions to standard ECMA-262.
+  * Supports built in modules (console, fs, util, uri, vm, clip).
 
 
 ## ToDo
 
-  * Can't use `Getter` and `Setter`.
+  * `Getter` and `Setter` support.
   * `"use strict"` syntax support.
-  * `finally` statement will not called when `catch` statement omitted (JScript's bug).
 
 ## Quickstart usage
 
-WSHModule not use file type association and Windows environment (eg., PATH etc).
+Runs script with WSHModule:  
 
-Quick test:
+`cmd>wscript "WSHModule/bin/wshmodule.wsf" "myscript.js"`  
 
-Execute(drag-drop) `scripts/test.js` to `scripts/RunWSHModule.wsf`.
-or
-`cmd>wscript "/path/to/scripts/RunWSHModule.wsf" "your-script-path.js"`
+or  
+
+Execute(drag-drop) `myscript.js` to `WSHModule/bin/wshmodule.wsf`
 
 
-RunWSHModule.wsf is a shortcut of `bin/wshmodule.wsf` execution.
+## File Overview
 
+Currently, WSHModule does not use file type association and Windows environment (eg., PATH etc).
 
 file definitions are following:
 
- * bin/wshmodule.wsf : WSHModule executable engine.
+ * `WSHModule/bin/wshmodule.wsf` : WSHModule script engine.
 
-   Simple usage:  
-   `cmd>wscript "/path/to/bin/wshmodule.wsf" "your-script-path.js"`
+ * `WSHModule/bin/ClipConsole.exe` : helper for console and clipboard access.  
+   Note WSH/JScript can't access to clipboard without security dialog.  
+   ClipConsole's source code: `WSHModule/bin/src/ClipConsole`
 
- * bin/ClipConsole.exe : A helper exe for console and clipboard access.  
-   ClipConsole's source code: bin/src/ClipConsole
-
- * bin/src/compile.js : A WSHModule source code compiler.  
-   You can build your sources by execute(dblclick) compie.js. work with WSH/JScript.
+ * `WSHModule/bin/src/compiler.js` : WSHModule source code compiler.  
+   compiler.js provides to build `wshmodule.wsf` from sources `WSHModule/bin/src/*.js`  
+   compile: `cmd>wscript "WSHModule/bin/src/compiler.js"` or execute (dblclick) compiler.js
 
 
 ## License
