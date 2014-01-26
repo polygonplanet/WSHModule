@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<package>
+<job id="WSHModuleEngine">
+<?job error="true" debug="false"?>
+<runtime/>
+<script language="JScript" type="text/javascript" charset="utf-8"><![CDATA[
+(function(global) {
+global.WSHModule = {};
+
+WSHModule._builtinDefinition = function() {
+  (function(global, exports, require) {
+    [[CODE_POINT]]
+
+  }).apply(this, function() {
+    var exports = WSHModule.exports = {
+      globals: {},
+      fs: {
+        readFileSync: function(filename, encoding) {
+          var req = new ActiveXObject('Microsoft.XMLHTTP');
+          req.open('GET', filename, false);
+          req.send();
+          var content = req.responseText;
+          return req = null, content;
+        }
+      }
+    };
+
+    var require = function(request) {
+      return exports[request];
+    };
+
+    return [global, exports, require];
+  }());
+};
+WSHModule._builtinDefinition();
+WSHModule.load();
+
+}((function() { return this; }()) || this || {}));
+]]></script>
+</job>
+</package>
