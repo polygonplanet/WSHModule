@@ -1,0 +1,32 @@
+object WSHModuleConsoleForm: TWSHModuleConsoleForm
+  Left = 412
+  Height = 500
+  Top = 134
+  Width = 600
+  Caption = 'WSHModule'
+  ClientHeight = 500
+  ClientWidth = 600
+  Font.CharSet = 4
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  OnShow = FormShow
+  LCLVersion = '1.0.14.0'
+  object Console: TMemo
+    Left = 0
+    Height = 500
+    Top = 0
+    Width = 600
+    Align = alClient
+    Color = clBlack
+    Font.CharSet = 4
+    Font.Color = clWhite
+    Font.Height = -12
+    Font.Name = 'Consolas'
+    ParentFont = False
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+end
