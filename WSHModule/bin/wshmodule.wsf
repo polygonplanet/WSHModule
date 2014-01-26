@@ -1742,9 +1742,9 @@ var appFullName=WSHModule.appFullName=scriptDir+sep+'WSHModule.exe';
 var shellFullName=WSHModule.shellFullName=scriptDir+sep+'wshmshell.js';
 [['_id',null],
 ['_appHandle',null],
-['_engine','wscript']].forEach(function(name){
+['_engine','wscript']].forEach(function(item){
 if(!(name in WSHModule)){
-WSHModule[name]=null;
+WSHModule[item[0]]=item[1];
 }
 });
 return createObject(mixin(WSHModule,{

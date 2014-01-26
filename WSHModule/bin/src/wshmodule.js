@@ -17,9 +17,9 @@ global.WSHModule = (function(WSHModule) {
 
   [['_id', null],
    ['_appHandle', null],
-   ['_engine', 'wscript']].forEach(function(name) {
+   ['_engine', 'wscript']].forEach(function(item) {
     if (!(name in WSHModule)) {
-      WSHModule[name] = null;
+      WSHModule[item[0]] = item[1];
     }
   });
 
