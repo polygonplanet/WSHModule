@@ -130,6 +130,9 @@
   require('shim');
 
   var compiler_definition = function() {
+    var hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
+    var push = Array.prototype.push;
+
     // Separates code to characters. that is rough function.
     var tokenize = (function() {
       var TOKEN = 1,
@@ -225,8 +228,8 @@
 
     // Joins tokenized characters to code string.
     var untokenize = (function() {
-      var word = /[\s+\/%*=&|^~<>!?:,;@()\\[\].{}'"-]/;
-      var sign = /[^+-]/;
+      var notWord = /[\s+\/%*=&|^~<>!?:,;@()\\[\].{}'"-]/;
+      var notSign = /[^+-]/;
 
       return function(tokens) {
         var r = [];
@@ -240,9 +243,9 @@
             continue;
           }
 
-          space = (!sign.test(token) && !sign.test(prev)) ||
-                  (!word.test(prev.slice(-1)) &&
-                   !word.test(token.charAt(0))) ? ' ' : '';
+          space = (!notSign.test(token) && !notSign.test(prev)) ||
+                  (!notWord.test(prev.slice(-1)) &&
+                   !notWord.test(token.charAt(0))) ? ' ' : '';
 
           r.push(space + token);
         }
@@ -314,16 +317,16 @@
           prev = this.eat(i, -1);
           next = this.eat(i, 1);
 
-          if (!notAlpha.test(token) && token in reservedWords) {
+          if (!notAlpha.test(token) && hasOwn(reservedWords, token)) {
             if (prev === '.') {
               res.pop();
-              Array.prototype.push.apply(res, [
+              push.apply(res, [
                 '[', "'" + token + "'", ']'
               ]);
               continue;
             }
 
-            // { delete: ... } or { get: ... } or { set: ... }
+            // `{ xxx: ... }` or `get xxx() {...}` or `set xxx() {...}`
             if (((prev === ',' || prev === '{') && next === ':') ||
                 ((prev === 'get' || prev === 'set') && next === '(' )) {
               token = "'" + token + "'";
@@ -367,7 +370,7 @@
                 break;
             case 'finally':
                 if (depths[depths.length - 1] === level && next === '{' && prev === '}') {
-                  Array.prototype.push.apply(res, [
+                  push.apply(res, [
                     'catch', '(', '$e', ')', '{', 'throw', ' ', '$e', ';', '}'
                   ]);
                   depths.pop();
