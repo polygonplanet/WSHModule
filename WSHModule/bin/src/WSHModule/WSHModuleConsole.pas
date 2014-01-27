@@ -602,7 +602,7 @@ begin
   begin
     FWSHEngine := 'cscript';
     WCD.Command := 'runscript';
-    WCD.FileName := WSHMODULE_SHELLNAME;
+    WCD.FileName := IncludeTrailingPathDelimiter(FAppDir) + WSHMODULE_SHELLNAME;
   end
   else
   begin
