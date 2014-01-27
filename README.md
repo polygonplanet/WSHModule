@@ -55,7 +55,7 @@ Execute (drag-drop) `C:/path/to/myscript.js` to `WSHModule.exe`
 Runs test script:  
 
   1. `cd WSHModule`
-  2. `bin/WSHModule.exe "scripts/test.js"`
+  2. `"bin/WSHModule.exe" "scripts/test.js"`
 
 
 ## ToDo
