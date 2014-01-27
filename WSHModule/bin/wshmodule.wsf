@@ -548,7 +548,7 @@ length>=3?new NativeDate(Y,M,D):
 length>=2?new NativeDate(Y,M):
 length>=1?new NativeDate(Y):
 new NativeDate();
-date['constructor']=Date;
+date.constructor=Date;
 return date;
 }
 return NativeDate.apply(this,arguments);
@@ -595,7 +595,7 @@ Date[key]=NativeDate[key];
 Date.now=NativeDate.now;
 Date.UTC=NativeDate.UTC;
 Date.prototype=NativeDate.prototype;
-Date.prototype['constructor']=Date;
+Date.prototype.constructor=Date;
 Date.parse=function(string){
 var match=isoDateExpression.exec(string);
 if(match){
@@ -957,7 +957,7 @@ lookupSetter=call.bind(prototypeOfObject.__lookupSetter__);
 if(!Object.getPrototypeOf){
 Object.getPrototypeOf=function(object){
 return object.__proto__||(
-object['constructor']?object['constructor'].prototype:prototypeOfObject);
+object.constructor?object.constructor.prototype:prototypeOfObject);
 };
 }
 var doesGetOwnPropertyDescriptorWork=function(object){
@@ -1027,7 +1027,7 @@ if(createEmpty.getNew){
 return createEmpty.getNew();
 }
 var empty=createContext().Object.prototype;
-delete empty['constructor'];
+delete empty.constructor;
 delete empty.hasOwnProperty;
 delete empty.propertyIsEnumerable;
 delete empty.isPrototypeOf;
@@ -1386,7 +1386,7 @@ return this;
 return new(Ctor.bind.apply(Ctor,[null].concat(args)));
 };
 }(Ctor||function(){}));
-return(Ctor.prototype=(proto||(proto={})))['constructor']=Ctor;
+return(Ctor.prototype=(proto||(proto={}))).constructor=Ctor;
 };
 var createObject=exports.util.createObject=function(){
 return new(createConstructor.apply(null,arguments));
@@ -1402,7 +1402,7 @@ var type;
 slice(arguments).forEach(function(parent){
 type||(type=typeof parent);
 var keys=Object.keys(parent);
-var Ctor=parent['constructor'];
+var Ctor=parent.constructor;
 for(var i=0,len=keys.length;i<len;i++){
 var key=keys[i];
 var val=parent[key];
@@ -2540,6 +2540,8 @@ Console.dir=Console.trace=Console.log;
 return Console;
 }());
 exports.console=console;
+var hasOwn=Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
+var push=Array.prototype.push;
 var tokenize=(function(){
 var TOKEN=1,
 REGEX_PREFIX=2,
@@ -2612,8 +2614,8 @@ return tokens;
 };
 }());
 var untokenize=(function(){
-var word=/[\s+\/%*=&|^~<>!?:,;@()\\[\].{}'"-]/;
-var sign=/[^+-]/;
+var notWord=/[\s+\/%*=&|^~<>!?:,;@()\\[\].{}'"-]/;
+var notSign=/[^+-]/;
 return function(tokens){
 var r=[];
 var prev,token,space;
@@ -2623,9 +2625,9 @@ if(!prev){
 r.push(token);
 continue;
 }
-space=(!sign.test(token)&&!sign.test(prev))||
-(!word.test(prev.slice(-1))&&
-!word.test(token.charAt(0)))?' ':'';
+space=(!notSign.test(token)&&!notSign.test(prev))||
+(!notWord.test(prev.slice(-1))&&
+!notWord.test(token.charAt(0)))?' ':'';
 r.push(space+token);
 }
 return r.join('');
@@ -2680,10 +2682,10 @@ for(var i=0,len=tokens.length;i<len;i++){
 token=tokens[i];
 prev=this.eat(i,-1);
 next=this.eat(i,1);
-if(!notAlpha.test(token)&&token in reservedWords){
+if(!notAlpha.test(token)&&hasOwn(reservedWords,token)){
 if(prev==='.'){
 res.pop();
-Array.prototype.push.apply(res,[
+push.apply(res,[
 '[',"'"+token+"'",']'
 ]);
 continue;
@@ -2726,7 +2728,7 @@ depths.pop();
 break;
 case'finally':
 if(depths[depths.length-1]===level&&next==='{'&&prev==='}'){
-Array.prototype.push.apply(res,[
+push.apply(res,[
 'catch','(','$e',')','{','throw',' ','$e',';','}'
 ]);
 depths.pop();
@@ -2968,7 +2970,13 @@ extensions:Module.extensions
 });
 };
 var resolvePath=function(path){
-var base=(inSandbox&&WSHModule._engine==='wscript')?MODULE_PATH:null;
+if(URI.normalize(path)===path){
+return path;
+}
+var base=null;
+if(inSandbox){
+base=MODULE_PATH;
+}
 return URI.normalize(path,base);
 };
 var resolveExtension=function(path){

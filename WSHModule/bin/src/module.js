@@ -35,7 +35,16 @@ var Module = (function(builtins) {
 
 
   var resolvePath = function(path) {
-    var base = (inSandbox && WSHModule._engine === 'wscript') ? MODULE_PATH : null;
+    if (URI.normalize(path) === path) {
+      return path;
+    }
+
+    var base = null;
+
+    if (inSandbox) {
+      base = MODULE_PATH;
+    }
+
     return URI.normalize(path, base);
   };
 
