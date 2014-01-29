@@ -14,11 +14,15 @@ var console = exports.globals.console = (function() {
       if (len > 1 && x.split(/%[%sdj]/).length - 1 === len) {
         data = format.apply(null, [x].concat(args));
       } else {
-        data = inspect(x);
+        if (x == null || x === Object(x)) {
+          data = inspect(x).replace(/[\\]{2}/g, '\\').replace(/[\x20]*([}\]])\s*$/, '$1');
+        } else {
+          data = x;
+        }
+
         if (title != null) {
           data = title + '\n' + data;
         }
-        data = data.replace(/[\\]{2}/g, '\\').replace(/[\x20]*([}\]])\s*$/, '$1');
       }
 
       data = data + '\n';
