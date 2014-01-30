@@ -2124,8 +2124,7 @@ absPath=sep+absPath;
 return absPath;
 },
 extname:function(uri){
-var ext=uri.slice(uri.lastIndexOf('.')+1);
-return ext===uri?'':ext;
+return URI.parse(uri).extension;
 },
 dirname:function(uri){
 var parts=URI.parse(uri);
@@ -2977,7 +2976,7 @@ if(URI.normalize(path)===path){
 return path;
 }
 var base=null;
-if(inSandbox){
+if(inSandbox&&!/^[.]+[\/\\]/.test(path)){
 base=MODULE_PATH;
 }
 return URI.normalize(path,base);

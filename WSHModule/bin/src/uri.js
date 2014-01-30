@@ -170,8 +170,7 @@ var URI = createObject({
     return absPath;
   },
   extname: function(uri) {
-    var ext = uri.slice(uri.lastIndexOf('.') + 1);
-    return ext === uri ? '' : ext;
+    return URI.parse(uri).extension;
   },
   dirname: function(uri) {
     var parts = URI.parse(uri);

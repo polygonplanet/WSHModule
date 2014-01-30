@@ -41,7 +41,7 @@ var Module = (function(builtins) {
 
     var base = null;
 
-    if (inSandbox) {
+    if (inSandbox && !/^[.]+[\/\\]/.test(path)) {
       base = MODULE_PATH;
     }
 
@@ -51,6 +51,7 @@ var Module = (function(builtins) {
 
   var resolveExtension = function(path) {
     var ext = URI.extname(path).toLowerCase();
+
     if (ext in Module.extensions) {
       return path;
     }
@@ -125,7 +126,6 @@ var Module = (function(builtins) {
     },
     _load: function(path) {
       var filename = resolvePath(resolveExtension(path));
-
       var cachedModule = Module.cache[filename];
       if (cachedModule) {
         return cachedModule.exports;
