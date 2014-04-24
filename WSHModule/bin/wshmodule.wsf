@@ -1567,6 +1567,14 @@ fill();
 es.push('"');
 return es.join('');
 };
+var toDefaultEncoding=exports.util.toDefaultEncoding=function(value){
+return JSON.parse(WSHModule._postCommand('todefaultencoding',{
+read:true,
+data:JSON.stringify({
+value:value
+})
+}));
+};
 var execCommand=exports.util.execCommand=function(cmd,winStyle,async){
 return withShell(function(){
 return this.Run(cmd,winStyle===void 0?4:(winStyle|0),!async);

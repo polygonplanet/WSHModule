@@ -277,6 +277,25 @@ var escapeShellArg = exports.util.escapeShellArg = function(arg) {
 };
 
 
+/*
+ * Convert string to the system default text encoding
+ * example:
+ *   var defaults = require('util').toDefaultEncoding('abc');
+ *   // defaults: {
+ *   //   value: "\u0061\u0062\u0063", // system defalt encoded string
+ *   //   code: [97, 98, 99] // array of character code
+ *   // }
+ */
+var toDefaultEncoding = exports.util.toDefaultEncoding = function(value) {
+  return JSON.parse(WSHModule._postCommand('todefaultencoding', {
+    read: true,
+    data: JSON.stringify({
+      value: value
+    })
+  }));
+};
+
+
 // cf. http://msdn.microsoft.com/ja-jp/library/cc364421.aspx
 var execCommand = exports.util.execCommand = function(cmd, winStyle, async) {
   return withShell(function() {

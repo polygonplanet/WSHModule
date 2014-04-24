@@ -51,6 +51,7 @@ type
     wcConfirm,
     wcPrompt,
     wcTmpfile,
+    wcToDefaultEncoding,
     wcUnknown
   );
 
@@ -70,6 +71,7 @@ type
     procedure CommandConfirm(WCD: TWSHModuleCommandData);
     procedure CommandPrompt(WCD: TWSHModuleCommandData);
     procedure AddTmpFileName(WCD: TWSHModuleCommandData);
+    procedure ToDefaultEncoding(WCD: TWSHModuleCommandData);
 
     procedure RunScript(WCD: TWSHModuleCommandData);
     procedure ExecuteScriptThread;
@@ -275,16 +277,17 @@ var
 begin
   Cmd := LowerCase(Command);
 
-  if Cmd = 'consolelog'      then Result := wcConsoleLog
-  else if Cmd = 'gettextclip' then Result := wcGetTextClip
-  else if Cmd = 'settextclip' then Result := wcSetTextClip
-  else if Cmd = 'emptyclip'   then Result := wcEmptyClip
-  else if Cmd = 'gethtmlclip' then Result := wcGetHTMLClip
-  else if Cmd = 'sethtmlclip' then Result := wcSetHTMLClip
-  else if Cmd = 'alert'       then Result := wcAlert
-  else if Cmd = 'confirm'     then Result := wcConfirm
-  else if Cmd = 'prompt'      then Result := wcPrompt
-  else if Cmd = 'tmpfile'    then Result := wcTmpfile
+  if Cmd = 'consolelog'             then Result := wcConsoleLog
+  else if Cmd = 'gettextclip'       then Result := wcGetTextClip
+  else if Cmd = 'settextclip'       then Result := wcSetTextClip
+  else if Cmd = 'emptyclip'         then Result := wcEmptyClip
+  else if Cmd = 'gethtmlclip'       then Result := wcGetHTMLClip
+  else if Cmd = 'sethtmlclip'       then Result := wcSetHTMLClip
+  else if Cmd = 'alert'             then Result := wcAlert
+  else if Cmd = 'confirm'           then Result := wcConfirm
+  else if Cmd = 'prompt'            then Result := wcPrompt
+  else if Cmd = 'tmpfile'           then Result := wcTmpfile
+  else if Cmd = 'todefaultencoding' then Result := wcToDefaultEncoding
   else Result := wcUnknown;
 end;
 
@@ -292,17 +295,18 @@ end;
 function TWSHModuleConsoleForm.CommandToString(Command: TWSHModuleCommand): String;
 begin
   case Command of
-  wcConsoleLog:  Result := 'consolelog';
-  wcGetTextClip: Result := 'gettextclip';
-  wcSetTextClip: Result := 'settextclip';
-  wcEmptyClip:   Result := 'emptyclip';
-  wcGetHTMLClip: Result := 'gethtmlclip';
-  wcSetHTMLClip: Result := 'sethtmlclip';
-  wcAlert:       Result := 'alert';
-  wcConfirm:     Result := 'confirm';
-  wcPrompt:      Result := 'prompt';
-  wcTmpfile:     Result := 'tmpfile'
-  else           Result := 'unknown'
+  wcConsoleLog:        Result := 'consolelog';
+  wcGetTextClip:       Result := 'gettextclip';
+  wcSetTextClip:       Result := 'settextclip';
+  wcEmptyClip:         Result := 'emptyclip';
+  wcGetHTMLClip:       Result := 'gethtmlclip';
+  wcSetHTMLClip:       Result := 'sethtmlclip';
+  wcAlert:             Result := 'alert';
+  wcConfirm:           Result := 'confirm';
+  wcPrompt:            Result := 'prompt';
+  wcTmpfile:           Result := 'tmpfile';
+  wcToDefaultEncoding: Result := 'todefaultencoding';
+  else                 Result := 'unknown'
   end;
 end;
 
@@ -485,6 +489,55 @@ begin
     Data.AsObject.S['value'] := Value;
 
     SaveToFileAsUTF8(WCD.FileName, Data.AsJSon());
+  finally
+    Param := nil;
+    Data := nil;
+  end;
+end;
+
+
+procedure TWSHModuleConsoleForm.ToDefaultEncoding(WCD: TWSHModuleCommandData);
+var
+ Data: ISuperObject;
+
+  procedure StringToCharCode(S: String);
+  var
+    C, I, Len: Integer;
+    Code: TSuperArray;
+    Value: String;
+  begin
+    Value := '';
+    Data.AsObject.O['code'] := TSuperObject.Create(stArray);
+    Code := Data.AsObject['code'].AsArray;
+    I := 1;
+    Len := Length(S) + 1;
+    while I < Len do
+    begin
+      C := Ord(S[I]);
+      Value :=  Value + '\u' + IntToHex(C, 4);
+      Code.I[I - 1] := C;
+      Inc(I);
+    end;
+    Data.AsObject.S['value'] := Value;
+  end;
+
+var
+  Res: String;
+  Value: String;
+  Encoded: String;
+  Param: ISuperObject;
+begin
+  if not CheckParameter(WCD, True) then
+    Exit;
+
+  Param := SO(WCD.Data);
+  Data := SO();
+  try
+    Value := Param.AsObject.S['value'];
+    Encoded := ConvertEncoding(Value, EncodingUTF8, GetDefaultTextEncoding);
+    StringToCharCode(Encoded);
+    Res := StringReplace(Data.AsJSon(), '\\', '\', [rfReplaceAll]);
+    SaveToFileAsUTF8(WCD.FileName, Res);
   finally
     Param := nil;
     Data := nil;
@@ -683,6 +736,10 @@ begin
   else if Cmd = 'tmpfile' then
   begin
     AddTmpFileName(WCD);
+  end
+  else if Cmd = 'todefaultencoding' then
+  begin
+    ToDefaultEncoding(WCD);
   end
   else if (Cmd = 'runscript') or (Cmd = '') then
   begin
