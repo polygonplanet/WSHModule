@@ -2152,7 +2152,7 @@ delimiter:';'
 });
 exports.uri=URI;
 Env.trigger('load-uri');
-var DOM=(function(){
+var DOM=exports.dom=(function(){
 var DOM={};
 DOM.createHTML=function(content){
 var args=slice(arguments,1);

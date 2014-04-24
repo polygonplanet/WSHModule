@@ -1,7 +1,7 @@
 /**
  * Define basic DOM functions that can be fetched from 'htmlfile'.
  */
-var DOM = (function() {
+var DOM = exports.dom = (function() {
 
   var DOM = {};
 
