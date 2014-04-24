@@ -2,8 +2,11 @@
 
 var url = prompt('[Module Installer] Enter module (.js) URL:', 'http://');
 
-if (typeof url !== 'string' ||
-    !/^https?:\/\/[^\/]+\/.+[.]js$/i.test(url)) {
+if (typeof url !== 'string') {
+  return;
+}
+
+if (!/^https?:\/\/[^\/]+\/.+[.]js$/i.test(url)) {
   alert('Error: invalid URL');
   return;
 }
