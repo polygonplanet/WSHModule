@@ -201,7 +201,7 @@ var Stream, withStream;
 
   FileSystemObject = exports.util.FileSystemObject =
     factory_WshObject('Scripting.FileSystemObject');
-  withFileSystemObject = exports.util.FileSystemObject =
+  withFileSystemObject = exports.util.withFileSystemObject =
     FileSystemObject.withInstance;
 
   Stream = exports.util.Stream = factory_WshObject('ADODB.Stream');

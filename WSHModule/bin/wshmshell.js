@@ -135,9 +135,9 @@ if (typeof module === 'undefined' || !module.exports) {
 }((function() { return this; }()) || this || {}, this, function() {
   return (function() {
     with (this) {
+      //TODO: variable scope
       return eval(this._getShellStatement());
     }
   }).call(this._filterContext());
 })));
-
 

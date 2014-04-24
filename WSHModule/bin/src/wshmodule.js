@@ -1,7 +1,7 @@
 /**
  * WSHModule: Internal module object
  */
-global.WSHModule = (function(WSHModule) {
+var WSHModule = (function(WSHModule) {
 
   var sep = WSHModule.sep = '\\';
 
@@ -137,6 +137,9 @@ global.WSHModule = (function(WSHModule) {
       return Module._load(this._filename);
     },
     runScript: function(code) {
+      //TODO: remove global
+      //delete global.WSHModule;
+
       this._setup();
 
       if (this._inSandbox && !this._termRegistered) {

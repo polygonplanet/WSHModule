@@ -1511,7 +1511,7 @@ Shell=exports.util.Shell=factory_WshObject('WScript.Shell');
 withShell=exports.util.withShell=Shell.withInstance;
 FileSystemObject=exports.util.FileSystemObject=
 factory_WshObject('Scripting.FileSystemObject');
-withFileSystemObject=exports.util.FileSystemObject=
+withFileSystemObject=exports.util.withFileSystemObject=
 FileSystemObject.withInstance;
 Stream=exports.util.Stream=factory_WshObject('ADODB.Stream');
 withStream=exports.util.withStream=Stream.withInstance;
@@ -1732,7 +1732,7 @@ case'object':default:return this.formatObject(x);
 var inspect=exports.util.inspect=function(x){
 return new Inspector().inspect(x);
 };
-global.WSHModule=(function(WSHModule){
+var WSHModule=(function(WSHModule){
 var sep=WSHModule.sep='\\';
 var scriptFullName=WSHModule.scriptFullName=
 (''+WScript.ScriptFullName).replace(/^file:\/+/i,'');
@@ -2914,11 +2914,13 @@ try{
 require('fs').unlinkSync(filename);
 }catch(e){}
 });
+var engine=WSHModule._engine==='cscript'?'cscript':'wscript';
+var winStyle=engine==='cscript'?1:4;
 execCommand(format('%s.exe //nologo //T:%d %s',
-WSHModule._engine,
+engine,
 Env._maxScriptTimeout|0,
 escapeShellArg(filename)
-),WSHModule._engine==='cscript'?1:4,false);
+),winStyle,false);
 return true;
 }
 });

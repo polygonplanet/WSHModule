@@ -204,11 +204,14 @@
           } catch (e) {}
         });
 
+        var engine = WSHModule._engine === 'cscript' ? 'cscript' : 'wscript';
+        var winStyle = engine === 'cscript' ? 1 : 4; // 1=activate window
+
         execCommand(format('%s.exe //nologo //T:%d %s',
-          WSHModule._engine,
+          engine,
           Env._maxScriptTimeout|0,
           escapeShellArg(filename)
-        ), WSHModule._engine === 'cscript' ? 1 : 4, false);
+        ), winStyle, false);
 
         return true;
       }
