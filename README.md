@@ -43,7 +43,6 @@ or
 Execute (drag-drop) `C:/path/to/myscript.js` to `WSHModule.exe`
 
 
-
 #### Simple way:  
 
   1. Create a shortcut of WSHModule.exe to desktop.
@@ -62,6 +61,11 @@ Runs test script:
 
   * `Getter` and `Setter` support.
   * `"use strict"` syntax support.
+
+## Dev
+
+* `bin/src/WSHModule` is built on Lazarus (Free Pascal)
+
 
 ## License
 
