@@ -15,12 +15,15 @@ uses
   Graphics,
   Dialogs,
   StdCtrls,
+  LazUTF8,
   Clipbrd,
   Process,
   LazUtils,
   LConvEncoding,
   lclproc,
-  superobject,
+  superdate in './vendors/superdate.pas',
+  supertypes in './vendors/supertypes.pas',
+  superobject in './vendors/superobject.pas',
   WSHModuleUtils,
   WSHModuleScript;
 

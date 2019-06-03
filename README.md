@@ -56,7 +56,6 @@ Runs test script:
   1. `cd WSHModule`
   2. `"bin/WSHModule.exe" "scripts/test.js"`
 
-
 ## ToDo
 
   * `Getter` and `Setter` support.
@@ -66,12 +65,23 @@ Runs test script:
 
 * `bin/src/WSHModule` is built on Lazarus (Free Pascal)
 
+## Build
+
+1. Copy `bin/wshmodule.wsf` and `bin\wshmshell.js` to `bin/src/WSHModule` folder.
+2. Download [Lazarus IDE](https://www.lazarus-ide.org/)
+3. Project -> Open Project -> Open `bin/src/WSHModule/WSHModule.lpr` (Change `All files (*.*)`)
+4. Confirm dialog `The file "WSHModule.lpr" is not a Lazarus project. Create a new project for this "program"?` -> `Create project`
+5. Select `Application`
+6. **Run** (Menu `Run -> Run`) or **Build** (Menu `Run -> Build`)
+
+You can get a `WSHModule.exe` by build, and also run JavaScript with WSHModule console, for example, typing `1+1` and press enter key in the console window, you can get result `2`.
 
 ## License
 
 Public Domain
 
-## Authors
+## Credits
 
-* [polygon planet](https://github.com/polygonplanet) (twitter: [polygon_planet](http://twitter.com/polygon_planet))
+This project is using on the following excellent free yet copyrighted open source softwares. We follow the policies of those software packages.
 
+* [superobject](https://github.com/hgourvest/superobject) (MPL1.1)
