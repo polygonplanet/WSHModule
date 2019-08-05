@@ -67,8 +67,8 @@ Runs test script:
 
 ## Build
 
-1. Copy `bin/wshmodule.wsf` and `bin\wshmshell.js` to `bin/src/WSHModule` folder.
-2. Download [Lazarus IDE](https://www.lazarus-ide.org/)
+1. Copy `bin/wshmodule.wsf` and `bin\wshmshell.js` to `bin/src/WSHModule` folder
+2. Download [Lazarus IDE](https://www.lazarus-ide.org/) and Install
 3. Project -> Open Project -> Open `bin/src/WSHModule/WSHModule.lpr` (Change `All files (*.*)`)
 4. Confirm dialog `The file "WSHModule.lpr" is not a Lazarus project. Create a new project for this "program"?` -> `Create project`
 5. Select `Application`
