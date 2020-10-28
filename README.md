@@ -137,7 +137,7 @@ console.log(fs.readFileSync('./test.txt'));
 
 ## License
 
-Public Domain
+MIT
 
 ## Credits
 
