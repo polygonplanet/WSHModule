@@ -76,6 +76,65 @@ Runs test script:
 
 You can get a `WSHModule.exe` by build, and also run JavaScript with WSHModule console, for example, typing `1+1` and press enter key in the console window, you can get result `2`.
 
+## JavaScript API
+
+### Global
+
+* **__filename** : Current filename
+* **__dirname** : Current dirname
+
+Example
+
+```js
+console.log(__filename); // C:\path\to\your_script.js
+console.log(__dirname); // C:\path\to
+```
+
+### Clipboard
+
+Example
+
+```js
+var clip = require('clip');
+clip.set('test');
+```
+
+Available format: 'text' or 'html'
+
+* **get ([format = 'text'])** : Get clipboard text as [format]
+* **set (data, [format = 'text'])** : Set data to clipboard as [format]
+* **empty()** : Empty clipboard data
+* **hasFormat(format)** : Check whether clipboard has a format
+* **getAsText()** : A shortcut of `get('text')`
+* **getAsHTML()** : A shortcut of `get('html')`
+* **setAsText(data)** : A shortcut of `set(data, 'text')`
+* **setAsHTML(data)** : A shortcut of `set(data, 'html')`
+* **copy()** : Emulate copy command of the keyboard
+* **paste()** : Emulate paste command of the keyboard
+* **cut()** : Emulate cut command of the keyboard
+* **getSelectedText()** : Get selected text to clipboard (shortcut of `copy()` and `get()`)
+* **print(text)** : Print clipboard text (shortcut of `set(text)` and `paste()`)
+
+----
+
+### fs
+
+Local file system utility
+
+```js
+var fs = require('fs');
+console.log(fs.readFileSync('./test.txt'));
+```
+
+* **renameSync(oldPath, newPath)** : Rename file `oldPath` to `newPath`
+* **statSync(path)** : Get file stat
+* **unlinkSync(path, force = false)** : Remove file
+* **existsSync(path)** : Check whether a file exists
+* **readFileSync(filename, encoding = 'utf-8')** : Read content from `filename`
+* **writeFileSync(filename, data, encoding = 'utf-8')** : Write content `data` to `filename`
+* **copySync(src, dst, overwrite = false)** : Copy file `src` to `dst`
+* **moveSync(src, dst)** : Move file from `src` to `dst`
+
 ## License
 
 Public Domain
