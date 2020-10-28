@@ -1,5 +1,5 @@
 /**
- * Script environment utility.
+ * Script environment utility
  */
 var Env = new (extend(Events, {
   _waitInterval: 30,
@@ -59,7 +59,7 @@ var Env = new (extend(Events, {
       sleep(this._waitInterval);
     }
   },
-  // Activate alert/popup window by waiting exits process.
+  // Activate alert/popup window by waiting exits process
   waitActiveProcess: function() {
     sleep(this._activeInterval);
   },
@@ -80,4 +80,3 @@ var Env = new (extend(Events, {
 }));
 
 exports.env = Env;
-

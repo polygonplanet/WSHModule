@@ -1,5 +1,5 @@
 /**
- * Define basic DOM functions that can be fetched from 'htmlfile'.
+ * Define basic DOM functions that can be fetched from 'htmlfile'
  */
 var DOM = exports.dom = (function() {
 
@@ -55,7 +55,6 @@ var DOM = exports.dom = (function() {
     };
   };
 
-
   DOM._contexts = [];
 
   DOM.createContext = function() {
@@ -73,7 +72,6 @@ var DOM = exports.dom = (function() {
     }
     DOM._contexts.length = 0;
   };
-
 
   DOM._globalContext = DOM.createContext();
   DOM.window = DOM._globalContext.window;
@@ -97,14 +95,12 @@ var DOM = exports.dom = (function() {
     });
   });
 
-
   // alert/confirm/prompt
   //XXX: WSH function definition does not work in the object?
-  // define variables in global.
+  // define variables in global
   alert = exports.globals.alert = function(msg) {
     WSHModule._postCommand('alert', { data: '' + msg });
   };
-
 
   confirm = exports.globals.confirm = function(msg) {
     var res = WSHModule._postCommand('confirm', {
@@ -114,7 +110,6 @@ var DOM = exports.dom = (function() {
 
     return !!JSON.parse(res).result;
   };
-
 
   prompt = exports.globals.prompt = function(msg, defaultValue) {
     var res = WSHModule._postCommand('prompt', {
@@ -128,7 +123,6 @@ var DOM = exports.dom = (function() {
     res = JSON.parse(res);
     return res.result ? '' + res.value : null;
   };
-
 
   // set/clearTimeout
   var timers = DOM.timers = {
@@ -147,7 +141,6 @@ var DOM = exports.dom = (function() {
     return timers.length++, timers.ids[id] = id;
   };
 
-
   clearTimeout = exports.globals.clearTimeout = function(id) {
     if (id in timers.ids) {
       delete timers.ids[id], timers.length--;
@@ -155,13 +148,11 @@ var DOM = exports.dom = (function() {
     return DOM.window.clearTimeout(id);
   };
 
-
   // set/clearInterval
   var intervals = DOM.intervals = {
     ids: {},
     length: 0
   };
-
 
   setInterval = exports.globals.setInterval = function(func, interval) {
     var args = slice(arguments, 2);
@@ -174,14 +165,12 @@ var DOM = exports.dom = (function() {
     return intervals.length++, intervals.ids[id] = id;
   };
 
-
   clearInterval = exports.globals.clearInterval = function(id) {
     if (id in intervals.ids) {
       delete intervals.ids[id], intervals.length--;
     }
     return DOM.window.clearInterval(id);
   };
-
 
   // Wait process when timers running
   Env.on('terminate-script', function() {
@@ -198,7 +187,7 @@ var DOM = exports.dom = (function() {
     }
   });
 
-  // Builtin XMLHttpRequest can't load local file.
+  // Builtin XMLHttpRequest can't load local file
   // Overwrite builtin XMLHttpRequest
   XMLHttpRequest = exports.globals.XMLHttpRequest = function() {
     return new ActiveXObject('Microsoft.XMLHTTP');
@@ -206,4 +195,3 @@ var DOM = exports.dom = (function() {
 
   return DOM;
 }());
-

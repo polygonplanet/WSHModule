@@ -1,5 +1,5 @@
 /**
- * Event utility that is not use locks on triggered.
+ * Event utility that is not use locks on triggered
  */
 var Events = createConstructor({
   _handlers: null,
@@ -60,4 +60,3 @@ var Events = createConstructor({
 });
 
 exports.events = Events;
-

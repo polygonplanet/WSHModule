@@ -1,5 +1,5 @@
 /**
- * Simple Module specification like Node.js modules/CommonJS for WSH.
+ * Simple Module specification like Node.js modules/CommonJS for WSH
  * Module based Node.js/module.js
  */
 var Module = (function(builtins) {
@@ -13,7 +13,6 @@ var Module = (function(builtins) {
 
   var inSandbox = !!WSHModule._inSandbox;
 
-
   var clean = function(src) {
     // Remove BOM
     if (src.charCodeAt(0) === 0xFEFF) {
@@ -21,7 +20,6 @@ var Module = (function(builtins) {
     }
     return src.replace(/^#.*$/m, '');
   };
-
 
   var getRequire = function(self) {
     return mixin(function(path) {
@@ -32,7 +30,6 @@ var Module = (function(builtins) {
       extensions: Module.extensions
     });
   };
-
 
   var resolvePath = function(path) {
     if (URI.normalize(path) === path) {
@@ -48,7 +45,6 @@ var Module = (function(builtins) {
     return URI.normalize(path, base);
   };
 
-
   var resolveExtension = function(path) {
     var ext = URI.extname(path).toLowerCase();
 
@@ -59,7 +55,6 @@ var Module = (function(builtins) {
     ext = ext || DEFAULT_EXTENSION;
     return path.replace(new RegExp('(?:[.]' + ext + '|)$', 'i'), '.' + ext);
   };
-
 
   var Module = mixin(createConstructor(function() {
     this.exports = {};

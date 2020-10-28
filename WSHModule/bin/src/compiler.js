@@ -106,7 +106,6 @@
       Function(exports.fs.readFileSync(request + '.js')).call(this);
   };
 
-
   var Stream = function() {
     return new ActiveXObject('ADODB.Stream');
   };
@@ -126,14 +125,13 @@
     return result;
   };
 
-
   require('shim');
 
   var compiler_definition = function() {
     var hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
     var push = Array.prototype.push;
 
-    // Separates code to characters. that is rough function.
+    // Separates code to characters. that is rough function
     var tokenize = (function() {
       var TOKEN = 1,
           REGEX_PREFIX = 2,
@@ -226,7 +224,7 @@
       };
     }());
 
-    // Joins tokenized characters to code string.
+    // Joins tokenized characters to code string
     var untokenize = (function() {
       var notWord = /[\s+\/%*=&|^~<>!?:,;@()\\[\].{}'"-]/;
       var notSign = /[^+-]/;
@@ -263,7 +261,6 @@
       untokenize: untokenize,
       minify: minify
     };
-
 
     // A tiny code modifier to compatible with the ECMA-262 standard
     var Compiler = function(code) {
@@ -391,14 +388,11 @@
     };
   };
 
-
   exports.compiler_definition = (function(definition) {
     definition();
     var code = Function.prototype.toString.call(definition);
     return code.replace(/^[^{]*\{([\s\S]+)\}[^}]*$/, '$1');
   }(compiler_definition));
 
-
   return [this, exports, require];
 }(this));
-

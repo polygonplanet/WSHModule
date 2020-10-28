@@ -1,5 +1,5 @@
 /**
- * console definition.
+ * console definition
  */
 var console = exports.globals.console = (function() {
 

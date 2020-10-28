@@ -1,5 +1,5 @@
 /**
- * Clipboard utility.
+ * Clipboard utility
  */
 var Clipboard = (function() {
 
@@ -53,7 +53,6 @@ var Clipboard = (function() {
   return Clipboard;
 }());
 
-
 [['copy', '^c', 20], ['paste', '^v', 200], ['cut', '^x', 20]].forEach(function(item) {
   var name = item[0];
   var key  = item[1];
@@ -65,7 +64,6 @@ var Clipboard = (function() {
     return this;
   };
 });
-
 
 Clipboard.withClipboard = function(fn) {
   var args = slice(arguments, 1);
@@ -83,7 +81,6 @@ Clipboard.withClipboard = function(fn) {
   return fn.apply(this, args);
 };
 
-
 Clipboard.getSelectedText = function() {
   return this.withClipboard(function() {
     this.copy();
@@ -91,7 +88,6 @@ Clipboard.getSelectedText = function() {
     return this.get();
   });
 };
-
 
 Clipboard.print = function(text) {
   return this.withClipboard(function() {
@@ -104,7 +100,4 @@ Clipboard.print = function(text) {
   });
 };
 
-
 exports.clip = Clipboard;
-
-

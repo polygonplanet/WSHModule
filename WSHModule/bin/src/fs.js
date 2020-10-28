@@ -18,7 +18,6 @@ exports.fs.renameSync = function(oldPath, newPath) {
   });
 };
 
-
 exports.fs.statSync = function(path) {
   path = resolvePath(path);
 
@@ -34,7 +33,6 @@ exports.fs.statSync = function(path) {
   });
 };
 
-
 exports.fs.unlinkSync = function(path, force) {
   path = resolvePath(path);
 
@@ -43,7 +41,6 @@ exports.fs.unlinkSync = function(path, force) {
   });
 };
 
-
 exports.fs.existsSync = function(path) {
   path = resolvePath(path);
 
@@ -51,7 +48,6 @@ exports.fs.existsSync = function(path) {
     return this.FileExists(path);
   });
 };
-
 
 //XXX: Read as binary when omitted encoding
 exports.fs.readFileSync = function(filename, encoding) {
@@ -75,7 +71,6 @@ exports.fs.readFileSync = function(filename, encoding) {
     }
   });
 };
-
 
 exports.fs.writeFileSync = function(filename, data, encoding) {
   filename = resolvePath(filename);
@@ -131,7 +126,6 @@ exports.fs.writeFileSync = function(filename, data, encoding) {
   }
 };
 
-
 // extra functions: copySync
 exports.fs.copySync = function(src, dst, overwrite) {
   src = resolvePath(src);
@@ -142,7 +136,6 @@ exports.fs.copySync = function(src, dst, overwrite) {
   });
 };
 
-
 // extra functions: moveSync
 exports.fs.moveSync = function(src, dst) {
   src = resolvePath(src);
@@ -152,5 +145,3 @@ exports.fs.moveSync = function(src, dst) {
     return this.MoveFile(src, dst);
   });
 };
-
-

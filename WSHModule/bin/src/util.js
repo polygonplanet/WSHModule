@@ -7,7 +7,6 @@ var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
 var hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 var toString = Object.prototype.toString.call.bind(Object.prototype.toString);
 
-
 var mixin = exports.util.mixin = function(target) {
   slice(arguments, 1).forEach(function(source) {
     var key, keys = Object.keys(source);
@@ -17,7 +16,6 @@ var mixin = exports.util.mixin = function(target) {
   });
   return target;
 };
-
 
 var createConstructor = exports.util.createConstructor = function(Ctor, proto) {
   if (!proto) {
@@ -39,11 +37,9 @@ var createConstructor = exports.util.createConstructor = function(Ctor, proto) {
   return (Ctor.prototype = (proto || (proto = {}))).constructor = Ctor;
 };
 
-
 var createObject = exports.util.createObject = function() {
   return new (createConstructor.apply(null, arguments));
 };
-
 
 var extend = exports.util.extend = function() {
   var inherits = function(childFn, parentFn) {
@@ -85,7 +81,6 @@ var extend = exports.util.extend = function() {
   return type === 'function' ? createConstructor(child) : child;
 };
 
-
 // format from node.js/lib/util
 var format = exports.util.format = function(f) {
   var args = arguments;
@@ -116,7 +111,6 @@ var format = exports.util.format = function(f) {
   });
 };
 
-
 var formatDate = exports.util.formatDate = function(template, timestamp) {
   var specs = 'YYYY:MM:DD:HH:mm:ss'.split(':');
   var date = new Date(timestamp || Date.now() - new Date().getTimezoneOffset() * 60000);
@@ -124,7 +118,6 @@ var formatDate = exports.util.formatDate = function(template, timestamp) {
     return template.split(specs[i]).join(item);
   }, template);
 };
-
 
 var sleep = exports.util.sleep = function(msec) {
   return WScript.Sleep(msec), msec;
@@ -135,7 +128,6 @@ var wait = function(msec) {
   return sleep(msec || Env._waitInterval);
 };
 
-
 var bindAll = function(target) {
   return Object.keys(target).forEach(function(key) {
     if (typeof this[key] === 'function') {
@@ -143,7 +135,6 @@ var bindAll = function(target) {
     }
   }, target), target;
 };
-
 
 var gc;
 (function(CollectGarbage_) {
@@ -153,7 +144,6 @@ var gc;
     } catch (e) {}
   };
 }(typeof CollectGarbage !== 'undefined' ? CollectGarbage : null));
-
 
 var Shell, withShell;
 var FileSystemObject, withFileSystemObject;
@@ -208,14 +198,12 @@ var Stream, withStream;
   withStream = exports.util.withStream = Stream.withInstance;
 }());
 
-
 var escapeSpace = exports.util.escapeSpace = function(string) {
   var esc = /([\x08\x09\x0a-\x0d\x20\x22\x27\x5c\xa0\u2028\u2029\ufeff])/g;
   return string.replace(esc, function(a, c) {
     return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
   });
 };
-
 
 // Escape characters like JSON.stringify
 var escapeString = exports.util.escapeString = (function() {
@@ -241,7 +229,6 @@ var escapeString = exports.util.escapeString = (function() {
     }) : '' + string;
   };
 }());
-
 
 // Escape a string to be used as a shell argument (for Windows CMD)
 var escapeShellArg = exports.util.escapeShellArg = function(arg) {
@@ -276,7 +263,6 @@ var escapeShellArg = exports.util.escapeShellArg = function(arg) {
   return es.join('');
 };
 
-
 /*
  * Convert string to the system default text encoding
  * example:
@@ -295,14 +281,12 @@ var toDefaultEncoding = exports.util.toDefaultEncoding = function(value) {
   }));
 };
 
-
 // cf. http://msdn.microsoft.com/ja-jp/library/cc364421.aspx
 var execCommand = exports.util.execCommand = function(cmd, winStyle, async) {
   return withShell(function() {
     return this.Run(cmd, winStyle === void 0 ? 4 : (winStyle | 0), !async);
   });
 };
-
 
 // cf. http://msdn.microsoft.com/ja-jp/library/cc364423.aspx
 var sendKeys = exports.util.sendKeys = function(keys) {
@@ -316,7 +300,6 @@ var sendKeys = exports.util.sendKeys = function(keys) {
     }
   });
 };
-
 
 // Type detection from Node.js/util
 var isArray = exports.util.isArray = function(x) {
@@ -494,4 +477,3 @@ var Inspector = createConstructor({
 var inspect = exports.util.inspect = function(x) {
   return new Inspector().inspect(x);
 };
-
